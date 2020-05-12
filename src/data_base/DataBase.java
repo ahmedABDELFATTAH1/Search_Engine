@@ -5,16 +5,17 @@ public class DataBase {
     static Connection connection=null;
     // JDBC driver name and database URL
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    static final String DB_URL = "jdbc:mysql://localhost:3306/search_engine?createDatabaseIfNotExist=true";
+    static final String DATA_BASE_NAME ="search_engine";
+    static final String DB_URL = "jdbc:mysql://localhost:3306/"+DATA_BASE_NAME+"?createDatabaseIfNotExist=true";
     //  Database credentials
     static final String USER = "root";
     static final String PASS = "12";
 
-    static final String wordTableName="word";
-    static final String documentTableName="document";
-    static final String documentWordTableName="word_document";
-    static final String userTableName="user";
-    static final String imageTableName="image";
+    public static final String wordTableName="word";
+    public static final String documentTableName="document";
+    public static final String documentWordTableName="word_document";
+    public static final String userTableName="user";
+    public static final String imageTableName="image";
 
     static final String wordTableCreate = "CREATE TABLE IF NOT EXISTS  "+wordTableName+
             "(name VARCHAR(255) not NULL, " +
@@ -56,7 +57,7 @@ public class DataBase {
         db.createConnection();
         db.createTables();
     }
-    void createTables() throws SQLException {
+   public void createTables() throws SQLException {
         Statement stmt= connection.createStatement();
         stmt.executeUpdate(wordTableCreate);
         stmt.executeUpdate(documentTableCreate);
@@ -66,18 +67,18 @@ public class DataBase {
         stmt.close();
     }
 
-    void createConnection() throws ClassNotFoundException, SQLException {
+    public void createConnection() throws ClassNotFoundException, SQLException {
         Class.forName(JDBC_DRIVER);
         Connection con=DriverManager.getConnection(DB_URL,USER,PASS);
         connection=con;
     }
-    ResultSet selectQuerydb(String sqlStatement) throws SQLException {
+    public ResultSet selectQuerydb(String sqlStatement) throws SQLException {
         Statement stmt= connection.createStatement();
         ResultSet rs = stmt.executeQuery(sqlStatement);
         stmt.close();
         return rs;
     }
-    int insertdb(String sqlStatement) throws SQLException {
+    public int insertdb(String sqlStatement) throws SQLException {
         Statement stmt= connection.createStatement();
         int rs = stmt.executeUpdate(sqlStatement);
         stmt.close();
@@ -88,7 +89,7 @@ public class DataBase {
         int rs = stmt.executeUpdate(sqlStatement);
         return rs;
     }
-    int updatedb(String sqlStatement) throws SQLException {
+    public int updatedb(String sqlStatement) throws SQLException {
         Statement stmt= connection.createStatement();
         int rs = stmt.executeUpdate(sqlStatement);
         return rs;

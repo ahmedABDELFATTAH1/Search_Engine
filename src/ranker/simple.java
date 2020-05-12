@@ -17,3 +17,16 @@ public class simple {
     }
 
 }
+/*
+TODO: make ranker logic
+Ranker Logic :
+get an array list of search phrases
+for each word  get all documents that a word appeard in them
+for each word with a document get the tf value
+multiply tf by idf value to get the final score
+myultiply the final score by popularity which  is from 0 to one value
+sort all documents from the heighst score to the lowest one
+get heighst 10 score documents or
+for eah one of them get loop over the document and search for the document to take the breif from them
+get heyper link and the brief and resturn them as a json object
+ */
