@@ -17,7 +17,7 @@ public class DataBase {
     public static final String documentTableName="document";
     public static final String documentWordTableName="word_document";
     public static final String userTableName="user";
-    public static final String imageTableName="image";
+
 
     static final String wordTableCreate = "CREATE TABLE IF NOT EXISTS  "+wordTableName+
             "(name VARCHAR(255) not NULL, " +
@@ -31,6 +31,7 @@ public class DataBase {
             "stream_words TEXT ,"+
             "popularity FLOAT ,"+
             "Title VARCHAR(255),"+
+            "is_image BIT,"+
             "PRIMARY KEY (hyper_link));";
 
     static final String documentWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+documentWordTableName+
@@ -47,12 +48,6 @@ public class DataBase {
             "password VARCHAR(255) not NULL,"+
             "PRIMARY KEY (user_name));";
 
-    static final String imageTableCreate = "CREATE TABLE IF NOT EXISTS  "+imageTableName+
-            "(document_hyper_link VARCHAR(255) not NULL, " +
-            "image_link VARCHAR(255) not NULL,"+
-            "image_caption VARCHAR(255) not NULL,"+
-            "FOREIGN KEY (document_hyper_link)  REFERENCES document(hyper_link),"+
-            "PRIMARY KEY (image_link));";
 
 
     public  static void main(String ar[]) throws SQLException, ClassNotFoundException {
@@ -66,7 +61,6 @@ public class DataBase {
         Statement stmt= connection.createStatement();
         stmt.executeUpdate(wordTableCreate);
         stmt.executeUpdate(documentTableCreate);
-        stmt.executeUpdate(imageTableCreate);
         stmt.executeUpdate(documentWordTableCreate);
         stmt.executeUpdate(userTableCreate);
         stmt.close();

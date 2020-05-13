@@ -1,11 +1,7 @@
 package ranker;
 
-import data_base.DataBase;
-import data_base.WordDocument;
-import data_base.WordDocumentLabels;
-import data_base.WordLabels;
+import data_base.*;
 
-import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -66,7 +62,8 @@ public class Ranker {
         {
             String hyper_link=rs.getString(WordDocumentLabels.DOCUMENT_HYPER_LINK);
             Float tf=rs.getFloat(WordDocumentLabels.TERM_FREQUENCY);
-            Float score=rs.getFloat(WordDocumentLabels.SCORE)+ tf*IDF;
+            Float popularity=getDocumentPopularity(hyper_link);
+            Float score=rs.getFloat(WordDocumentLabels.SCORE)+ tf*IDF*popularity;
             String updateScore="UPDATE "+DataBase.documentWordTableName+
             " SET "+WordDocumentLabels.SCORE +" = "+score +
             " WHERE "+WordDocumentLabels.WORD_NAME +" = '"+word+"' and "+WordDocumentLabels.DOCUMENT_HYPER_LINK+
@@ -80,10 +77,24 @@ public class Ranker {
         }
     }
 
+    private Float getDocumentPopularity(String hyperLink) throws SQLException {
+        String sql_request = "SELECT "+ DocumentLabels.POPULARITY + " FROM "+DataBase.documentTableName+" Where "+DocumentLabels.HYPER_LINK+
+                " = '"+hyperLink+"';";
+        ResultSet rs = null;
+        try {
+            rs = db.selectQuerydb(sql_request);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        rs.next();
+        Float popularity=rs.getFloat(DocumentLabels.POPULARITY);
+        return popularity;
+    }
+
     void clearScores()
     {
-        String sql_request = "UPDATE "+DataBase.documentWordTableName+" SET '"+WordDocumentLabels.SCORE+
-                "' = 0";
+        String sql_request = "UPDATE "+DataBase.documentWordTableName+" SET "+WordDocumentLabels.SCORE+
+                " = 0;";
         try {
             db.updatedb(sql_request);
         } catch (SQLException throwables) {
@@ -99,8 +110,10 @@ public class Ranker {
         for(int i=0;i<search_list.size();i++)
         {
             String word = search_list.get(i);
-            if(!wordexists(word))
+            if(!wordexists(word)) {
                 System.out.println("word doesnt exist");
+                continue;
+            }
             else{
                 System.out.println("word does exist");
             }
@@ -108,15 +121,35 @@ public class Ranker {
             System.out.println(IDF);
             relevanceWordDocument(word,IDF);
         }
-
+        ArrayList<String> heightsScoresDocuments;
+        heightsScoresDocuments= getHighestScoresDocuments(100);
+        for(int i=0;i<heightsScoresDocuments.size();i++)
+        {
+            System.out.println(heightsScoresDocuments);
+        }
 
     }
+
+    private ArrayList<String> getHighestScoresDocuments(Integer numberDocuments) throws SQLException {
+        ArrayList<String> heightsScores=new ArrayList<>();
+        String sql_request = "SELECT "+ WordDocumentLabels.DOCUMENT_HYPER_LINK+ " FROM "+DataBase.documentWordTableName+
+                " ORDER BY "+WordDocumentLabels.SCORE +" DESC LIMIT "+numberDocuments+";";
+        ResultSet rs = null;
+        rs = db.selectQuerydb(sql_request);
+        while (rs.next())
+        {
+            heightsScores.add(rs.getString(WordDocumentLabels.DOCUMENT_HYPER_LINK));
+        }
+        return heightsScores;
+    }
+
     public  static void main(String ar[]) throws SQLException {
         ArrayList<String> str = new ArrayList<>();
         str.add("football");
+        str.add("is");
+        str.add("life");
         Ranker ranker= new Ranker();
         ranker.makeRank(str);
-
 
     }
 
