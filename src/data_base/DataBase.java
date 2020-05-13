@@ -16,6 +16,7 @@ public class DataBase {
     public static final String wordTableName="word";
     public static final String documentTableName="document";
     public static final String documentWordTableName="word_document";
+    public static final String indexTableName="word_index";
     public static final String userTableName="user";
 
 
@@ -43,10 +44,23 @@ public class DataBase {
              " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link));";
 
+
+    static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
+            " (word_name VARCHAR(255) not NULL, " +
+            " document_hyper_link VARCHAR(255) NOT NULL , "+
+            "word_position INT NOT NULL,"+
+            " FOREIGN KEY (word_name) REFERENCES word(name),"+
+            " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
+            "PRIMARY KEY (word_name,document_hyper_link,word_position));";
+
+
+
     static final String userTableCreate = "CREATE TABLE IF NOT EXISTS  "+userTableName+
             "(user_name VARCHAR(255) not NULL, " +
             "password VARCHAR(255) not NULL,"+
             "PRIMARY KEY (user_name));";
+
+
 
 
 
@@ -63,6 +77,7 @@ public class DataBase {
         stmt.executeUpdate(documentTableCreate);
         stmt.executeUpdate(documentWordTableCreate);
         stmt.executeUpdate(userTableCreate);
+        stmt.executeUpdate(indexTableCreate);
         stmt.close();
     }
 
