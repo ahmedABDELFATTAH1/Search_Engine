@@ -7,4 +7,5 @@ public class DocumentLabels {
     public static final String STREAM_WORDS = "stream_words";
     public static final String POPULARITY = "popularity";
     public static final String TITLE ="Title";
+
 }

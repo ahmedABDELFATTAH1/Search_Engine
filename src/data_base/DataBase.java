@@ -1,4 +1,6 @@
 package data_base;
+import ranker.Ranker;
+
 import java.sql.*;
 
 public class DataBase {
@@ -34,7 +36,8 @@ public class DataBase {
     static final String documentWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+documentWordTableName+
             "(word_name VARCHAR(255) not NULL, " +
             " document_hyper_link  VARCHAR(255) , "+
-            "tf float not NULL,"+
+            "tf float ,"+
+            "score float ,"+
             " FOREIGN KEY (word_name) REFERENCES word(name),"+
              " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link));";
@@ -57,6 +60,8 @@ public class DataBase {
         db.createConnection();
         db.createTables();
     }
+
+
    public void createTables() throws SQLException {
         Statement stmt= connection.createStatement();
         stmt.executeUpdate(wordTableCreate);
@@ -75,13 +80,13 @@ public class DataBase {
     public ResultSet selectQuerydb(String sqlStatement) throws SQLException {
         Statement stmt= connection.createStatement();
         ResultSet rs = stmt.executeQuery(sqlStatement);
-        stmt.close();
+        //stmt.close();
         return rs;
     }
     public int insertdb(String sqlStatement) throws SQLException {
         Statement stmt= connection.createStatement();
         int rs = stmt.executeUpdate(sqlStatement);
-        stmt.close();
+        //stmt.close();
         return rs;
     }
     int deletedb(String sqlStatement) throws SQLException {
