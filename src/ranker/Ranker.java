@@ -4,6 +4,7 @@ import data_base.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Ranker {
     DataBase db = null;
@@ -108,11 +109,11 @@ public class Ranker {
         ResultSet rs = null;
         rs = db.selectQuerydb(sql_request);
         rs.next();
-        return rs.getFloat(WordDocumentLabels.SCORE);
+        return rs.getFloat(1);
     }
 
     //private
-    public void makeRank(ArrayList<String> search_list) throws SQLException {
+    public ArrayList<DocumentResult> makeRank(ArrayList<String> search_list) throws SQLException {
         //Something a simple as UPDATE table1 SET column1=1; should do it.
         //reset scores
         clearScores();
@@ -137,22 +138,61 @@ public class Ranker {
             System.out.println(IDF);
             relevanceWordDocument(word,IDF);
         }
-        ArrayList<String> heightsScoresDocuments;
-        heightsScoresDocuments= getHighestScoresDocuments(100);
+        ArrayList<sortDocuments> sortedDocuments=null;
         if(ciriticalDocumnets!=null)
         {
+            sortedDocuments=new ArrayList<>();
             //TODO: get the score of all of them with each word and accumelate the results
             for(String document :ciriticalDocumnets)
             {
                 Float score=getScore(document);
+                sortedDocuments.add(new sortDocuments(document,score));
             }
-
+            sortedDocuments.sort(Comparator.comparing(sortDocuments::getScore));
         }
-        for(int i=0;i<heightsScoresDocuments.size();i++)
+        else
         {
-            System.out.println(heightsScoresDocuments.get(i));
+            sortedDocuments = getHighestScoresDocuments(100);
         }
+        ArrayList<DocumentResult> documentResult = new ArrayList<>();
+        for(sortDocuments doc : sortedDocuments)
+        {
+            String hyper_link=doc.hyper_link;
+            System.out.println(hyper_link);
+            String brief = getBrief(hyper_link);
+            String title = getTitle(hyper_link);
+            documentResult.add(new DocumentResult(hyper_link,brief,title));
+        }
+        return documentResult;
+    }
 
+    private String getTitle(String hyper_link) throws SQLException {
+        String sql_request =" SELECT "+DocumentLabels.TITLE+" FROM "+DataBase.documentTableName+" WHERE "+DocumentLabels.HYPER_LINK+
+                " ='"+hyper_link+"';";
+        ResultSet rs = null;
+        rs = db.selectQuerydb(sql_request);
+        rs.next();
+        return rs.getString(DocumentLabels.TITLE);
+    }
+
+    private String getBrief(String hyper_link) throws SQLException {
+
+        String sql_request =" SELECT "+DocumentLabels.STREAM_WORDS+" FROM "+DataBase.documentTableName+" WHERE "+DocumentLabels.HYPER_LINK+
+                " ='"+hyper_link+"';";
+        ResultSet rs = null;
+        rs = db.selectQuerydb(sql_request);
+        rs.next();
+        String stream_words=rs.getString(DocumentLabels.STREAM_WORDS);
+        String brief = null;
+        if(stream_words.length()>1000)
+        {
+            brief=stream_words.substring(0,1000);
+        }
+        else
+        {
+            brief=stream_words;
+        }
+        return brief;
     }
 
     private ArrayList<String> phraseSearching(String[] phrase) throws SQLException {
@@ -231,34 +271,97 @@ public class Ranker {
         return Documents;
     }
 
-    private ArrayList<String> getHighestScoresDocuments(Integer numberDocuments) throws SQLException {
-        ArrayList<String> heightsScores=new ArrayList<>();
+    private ArrayList<sortDocuments> getHighestScoresDocuments(Integer numberDocuments) throws SQLException {
+        ArrayList<sortDocuments> heightsScores=new ArrayList<>();
         String sql_request = "SELECT "+ WordDocumentLabels.DOCUMENT_HYPER_LINK+ " FROM "+DataBase.documentWordTableName+
                 " WHERE "+WordDocumentLabels.SCORE+" > 0 ORDER BY "+WordDocumentLabels.SCORE +" DESC LIMIT "+numberDocuments+";";
         ResultSet rs = null;
         rs = db.selectQuerydb(sql_request);
         while (rs.next())
         {
-            heightsScores.add(rs.getString(WordDocumentLabels.DOCUMENT_HYPER_LINK));
+            heightsScores.add(new sortDocuments(rs.getString(WordDocumentLabels.DOCUMENT_HYPER_LINK),0f));
         }
         return heightsScores;
     }
 
     public  static void main(String ar[]) throws SQLException {
         ArrayList<String> str = new ArrayList<>();
-        str.add("yallakora");
-        str.add("best web search engine");
-        str.add("life");
+        str.add("webb search engine");
         Ranker ranker= new Ranker();
-        ranker.makeRank(str);
+        ArrayList<DocumentResult> results=ranker.makeRank(str);
+        for(DocumentResult result : results)
+        {
+            System.out.println(result.hyper_link);
+            System.out.println(result.brief);
+            System.out.println(result.title);
+        }
 
     }
-//TODO:if phrase searching : make the phrase and take first word and search for Documents
-    //for every returned web page url search for the index of the word
-    //increment every one of them by one and go to the next word
-    //for that url see the positions of the next word and if it matches one of the numbers in that array
-    //save that place
-    //if not delete that place
-    //if that array becomes empty then that document is bad so don't take it
-    //if number of words reach it's end so that Document is good so take it please
+
+    public class DocumentResult
+    {
+        public String hyper_link;
+        public String title;
+
+        public String getHyper_link() {
+            return hyper_link;
+        }
+
+        public void setHyper_link(String hyper_link) {
+            this.hyper_link = hyper_link;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getBrief() {
+            return brief;
+        }
+
+        public void setBrief(String brief) {
+            this.brief = brief;
+        }
+
+        public DocumentResult(String hyper_link, String title, String brief) {
+            this.hyper_link = hyper_link;
+            this.title = title;
+            this.brief = brief;
+        }
+
+        public String brief;
+    }
+
+    public class sortDocuments
+    {
+        public String getHyper_link() {
+            return hyper_link;
+        }
+
+        public void setHyper_link(String hyper_link) {
+            this.hyper_link = hyper_link;
+        }
+
+        public Float getScore() {
+            return score;
+        }
+
+        public void setScore(Float score) {
+            this.score = score;
+        }
+
+        public String hyper_link;
+        public Float score;
+        public sortDocuments(String hyper_link,Float score)
+        {
+            this.hyper_link=hyper_link;
+            this.score=score;
+        }
+
+    }
+
 }
