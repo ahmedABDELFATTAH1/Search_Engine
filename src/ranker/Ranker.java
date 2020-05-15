@@ -114,18 +114,16 @@ public class Ranker {
 
     //private
     public ArrayList<DocumentResult> makeRank(ArrayList<String> search_list) throws SQLException {
-        //Something a simple as UPDATE table1 SET column1=1; should do it.
-        //reset scores
         clearScores();
-        ArrayList<String> ciriticalDocumnets=null;
+        ArrayList<String> criticalDocuments=null;
         for(int i=0;i<search_list.size();i++)
         {
             String word = search_list.get(i);
             String phrase[] = word.split(" ");
             if(phrase.length>1)//phrase searching logic
             {
-                ciriticalDocumnets=phraseSearching(phrase);//handle multiple phrase searching
-
+                criticalDocuments=phraseSearching(phrase);//handle multiple phrase searching
+                continue;
             }
             if(!wordexists(word)) {
                 System.out.println("word doesnt exist");
@@ -135,15 +133,14 @@ public class Ranker {
                 System.out.println("word does exist");
             }
             Float IDF=getIDF(word);
-            System.out.println(IDF);
             relevanceWordDocument(word,IDF);
         }
         ArrayList<sortDocuments> sortedDocuments=null;
-        if(ciriticalDocumnets!=null)
+        if(criticalDocuments!=null)
         {
             sortedDocuments=new ArrayList<>();
             //TODO: get the score of all of them with each word and accumelate the results
-            for(String document :ciriticalDocumnets)
+            for(String document :criticalDocuments)
             {
                 Float score=getScore(document);
                 sortedDocuments.add(new sortDocuments(document,score));
@@ -158,7 +155,6 @@ public class Ranker {
         for(sortDocuments doc : sortedDocuments)
         {
             String hyper_link=doc.hyper_link;
-            System.out.println(hyper_link);
             String brief = getBrief(hyper_link);
             String title = getTitle(hyper_link);
             documentResult.add(new DocumentResult(hyper_link,brief,title));
@@ -286,7 +282,8 @@ public class Ranker {
 
     public  static void main(String ar[]) throws SQLException {
         ArrayList<String> str = new ArrayList<>();
-        str.add("webb search engine");
+        str.add("best");
+        Boolean isImage=false;
         Ranker ranker= new Ranker();
         ArrayList<DocumentResult> results=ranker.makeRank(str);
         for(DocumentResult result : results)
