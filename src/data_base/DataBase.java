@@ -11,7 +11,7 @@ public class DataBase {
     static final String DB_URL = "jdbc:mysql://localhost:3306/"+DATA_BASE_NAME+"?createDatabaseIfNotExist=true";
     //  Database credentials
     static final String USER = "root";
-    static final String PASS = "12";
+    static final String PASS = "password";
 
     public static final String wordTableName="word";
     public static final String documentTableName="document";
@@ -22,12 +22,12 @@ public class DataBase {
 
     static final String wordTableCreate = "CREATE TABLE IF NOT EXISTS  "+wordTableName+
             "(name VARCHAR(255) not NULL, " +
-            " idf FLOAT, "+
+            "idf FLOAT, "+
             "PRIMARY KEY (name));";
 
     static final String documentTableCreate = "CREATE TABLE IF NOT EXISTS "+documentTableName+
             "(hyper_link VARCHAR(255) not NULL, " +
-            " data_modified  DATE ,"+
+            "data_modified  DATE ,"+
             "doc_path_file VARCHAR(255) not NULL, "+
             "stream_words TEXT ,"+
             "popularity FLOAT ,"+
@@ -37,20 +37,20 @@ public class DataBase {
 
     static final String documentWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+documentWordTableName+
             "(word_name VARCHAR(255) not NULL, " +
-            " document_hyper_link  VARCHAR(255) , "+
+            "document_hyper_link  VARCHAR(255) , "+
             "tf float ,"+
             "score float ,"+
-            " FOREIGN KEY (word_name) REFERENCES word(name),"+
-             " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
+            "FOREIGN KEY (word_name) REFERENCES word(name),"+
+            "FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link));";
 
 
     static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
-            " (word_name VARCHAR(255) not NULL, " +
-            " document_hyper_link VARCHAR(255) NOT NULL , "+
+            "(word_name VARCHAR(255) not NULL, " +
+            "document_hyper_link VARCHAR(255) NOT NULL , "+
             "word_position INT NOT NULL,"+
-            " FOREIGN KEY (word_name) REFERENCES word(name),"+
-            " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
+            "FOREIGN KEY (word_name) REFERENCES word(name),"+
+            "FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link,word_position));";
 
 
