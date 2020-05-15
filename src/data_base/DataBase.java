@@ -108,5 +108,21 @@ public class DataBase {
         int rs = stmt.executeUpdate(sqlStatement);
         return rs;
     }
+
+    public void CreateDataBase(){
+        DataBase db = new DataBase();
+        try {
+            db.createConnection();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        try {
+            db.createTables();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
     
 }

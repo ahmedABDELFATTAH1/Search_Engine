@@ -184,7 +184,7 @@ public class Stemmer {
 
 
     public static void main(String[] args){
-        String test = "1 2 3 4 54 a bb c d # $ # @$#@";
+        String test = "this main function for just testing, enjoy ;) 1 2 3 4 1234 a b c d abcd #$%^";
         Stemmer S = new Stemmer();
         System.out.print(S.stem(test));
     }
