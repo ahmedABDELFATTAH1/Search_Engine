@@ -1,7 +1,10 @@
 package Stemmer;
-import org.tartarus.snowball.ext.PorterStemmer;
-import java.util.HashMap;
+
 import org.apache.commons.lang3.StringUtils;
+import org.tartarus.snowball.ext.PorterStemmer;
+
+import java.util.HashMap;
+
 public class Stemmer {
 
     private final static String ILLEGAL_REGEX_PATTERN = "([^a-zA-Z0-9])|(\\b\\d{1}\\b)|(\\b\\w{1}\\b)";

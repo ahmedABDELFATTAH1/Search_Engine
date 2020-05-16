@@ -1,5 +1,4 @@
 package data_base;
-import ranker.Ranker;
 
 import java.sql.*;
 
@@ -11,19 +10,19 @@ public class DataBase {
     static final String DB_URL = "jdbc:mysql://localhost:3306/"+DATA_BASE_NAME+"?createDatabaseIfNotExist=true";
     //  Database credentials
     static final String USER = "root";
-    static final String PASS = "password";
+    static final String PASS = "12";
 
-    public static final String wordTableName="word";
+
     public static final String documentTableName="document";
     public static final String documentWordTableName="word_document";
+    public static final String imageTableName="image";
+    public static final String imageWordTableName="word_image";
     public static final String indexTableName="word_index";
-    public static final String userTableName="user";
+    public static final String trendsTableName="trends";
+    public static final String suggestionTableName="suggestion";
 
 
-//    static final String wordTableCreate = "CREATE TABLE IF NOT EXISTS  "+wordTableName+
-//            "(name VARCHAR(255) not NULL, " +
-//            "idf FLOAT, "+
-//            "PRIMARY KEY (name));";
+
 
     static final String documentTableCreate = "CREATE TABLE IF NOT EXISTS "+documentTableName+
             "(hyper_link VARCHAR(255) not NULL, " +
@@ -32,49 +31,66 @@ public class DataBase {
             "stream_words TEXT ,"+
             "popularity FLOAT ,"+
             "Title VARCHAR(255),"+
-            "is_image BIT,"+
             "PRIMARY KEY (hyper_link));";
 
     static final String documentWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+documentWordTableName+
             "(word_name VARCHAR(255) not NULL, " +
-            "document_hyper_link  VARCHAR(255) , "+
+            " document_hyper_link  VARCHAR(255) , "+
             "tf float ,"+
             "score float ,"+
-//            "FOREIGN KEY (word_name) REFERENCES word(name),"+
-            "FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
+             " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link));";
 
 
-    static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
+
+    static final String imageTableCreate = "CREATE TABLE IF NOT EXISTS "+imageTableName+
+            "(image_url VARCHAR(255) not NULL, " +
+            "caption Text,"+
+            "PRIMARY KEY (image_url));";
+
+    static final String imageWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+imageWordTableName+
             "(word_name VARCHAR(255) not NULL, " +
-            "document_hyper_link VARCHAR(255) NOT NULL , "+
+            " image_url  VARCHAR(255) , "+
+            "tf float ,"+
+            "score float ,"+
+            "FOREIGN KEY (image_url) REFERENCES image(image_url),"+
+            "PRIMARY KEY (word_name,image_url));";
+
+
+
+    static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
+            " (word_name VARCHAR(255) not NULL, " +
+            " document_hyper_link VARCHAR(255) NOT NULL , "+
             "word_position INT NOT NULL,"+
-//            "FOREIGN KEY (word_name) REFERENCES word(name),"+
-            "FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
+            " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link,word_position));";
 
 
 
-    static final String userTableCreate = "CREATE TABLE IF NOT EXISTS  "+userTableName+
-            "(user_name VARCHAR(255) not NULL, " +
-            "password VARCHAR(255) not NULL,"+
-            "PRIMARY KEY (user_name));";
+
+    static final String trendsTableCreate = "CREATE TABLE IF NOT EXISTS  "+trendsTableName+
+            " (region VARCHAR(255) NOT NULL , "+
+            "person_name VARCHAR(255) NOT NULL,"+
+            "search_count INT NOT NULL DEFAULT 0,"+
+            "PRIMARY KEY (region,person_name));";
 
 
-    public  static void main(String ar[]) throws SQLException, ClassNotFoundException {
-        DataBase db=new DataBase();
-        db.createConnection();
-        db.createTables();
-    }
+    static final String suggestionTableCreate = "CREATE TABLE IF NOT EXISTS  "+suggestionTableName+
+            "(query_id INT NOT NULL AUTO_INCREMENT, "+
+            " search_query VARCHAR(255) NOT NULL ,"+
+            "PRIMARY KEY (query_id));";
 
 
-   public void createTables() throws SQLException {
+
+    public void createTables() throws SQLException {
         Statement stmt= connection.createStatement();
-//        stmt.executeUpdate(wordTableCreate);
         stmt.executeUpdate(documentTableCreate);
         stmt.executeUpdate(documentWordTableCreate);
-        stmt.executeUpdate(userTableCreate);
+        stmt.executeUpdate(imageTableCreate);
+        stmt.executeUpdate(imageWordTableCreate);
         stmt.executeUpdate(indexTableCreate);
+        stmt.executeUpdate(trendsTableCreate);
+        stmt.executeUpdate(suggestionTableCreate);
         stmt.close();
     }
 
