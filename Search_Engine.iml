@@ -11,5 +11,6 @@
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="lucene-snowball-3.0.2" level="project" />
     <orderEntry type="library" name="common-lang3" level="project" />
+    <orderEntry type="library" name="jsoup-1.13.1" level="project" />
   </component>
 </module>

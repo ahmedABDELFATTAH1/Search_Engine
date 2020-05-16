@@ -1,3 +1,6 @@
 src/test
 test.txt
 *.jar
+out/
+resources/
+

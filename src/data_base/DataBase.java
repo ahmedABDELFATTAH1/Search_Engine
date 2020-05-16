@@ -57,12 +57,14 @@ public class DataBase {
             "PRIMARY KEY (word_name,image_url));";
 
 
+
     static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
             " (word_name VARCHAR(255) not NULL, " +
             " document_hyper_link VARCHAR(255) NOT NULL , "+
             "word_position INT NOT NULL,"+
             " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link,word_position));";
+
 
 
 
@@ -118,6 +120,22 @@ public class DataBase {
         Statement stmt= connection.createStatement();
         int rs = stmt.executeUpdate(sqlStatement);
         return rs;
+    }
+
+    public void CreateDataBase(){
+        DataBase db = new DataBase();
+        try {
+            db.createConnection();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        try {
+            db.createTables();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
     
 }
