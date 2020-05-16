@@ -1,39 +1,53 @@
 package Indexer;
 import data_base.DataBase;
 import Stemmer.Stemmer;
+
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.HashMap;
 import java.io.File;  // Import the File class
 import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Indexer {
     private Stemmer S;
 
-    private ArrayList<String> files;
+    private ArrayList<String> links;
 
     private HashMap<String, Integer> DocumentMap;
-//    private HashMap<String, Integer> PublicMap;
-
-//    private HashMap<String, Integer> WordsInFiles;
 
     private int DocumentCount;
-//    private int PublicCount;
 
     private int Loop;
+
+    // Data for Document
+    private String Path;
+    private String Link;
+    private String Title;
+
+    // DataBase
+    DataBase db;
+
+    // Document
+    Document document;
+
 
     public Indexer(ArrayList<String> files){
         S = new Stemmer();
         DocumentMap = new HashMap<>();
-//        PublicMap = new HashMap<>();
-//        WordsInFiles = new HashMap<>();
-        this.files = new ArrayList<String>();
+        this.links = new ArrayList<String>();
 
-        this.files = files;
+        this.links = files;
         DocumentCount = 0;
-//        PublicCount = 0;
         Loop = 0;
 
         ConnectDataBase();
@@ -42,87 +56,163 @@ public class Indexer {
 
     // Connect to database and create it;
     private void ConnectDataBase(){
-        DataBase db = new DataBase();
+        db = new DataBase();
         db.CreateDataBase();
     }
 
     // iterate the array list of files and pass it to indexer to work on it
-    public void Start(){
-        for (int i = 0 ; i < files.size() ; i++){
-            Indexing(files.get(i));
-//            WordsInFiles.put(files.get(i),DocumentCount);
+    private void Start(){
+        for (int i = 0 ; i < links.size() ; i++){
+            Indexing(links.get(i));
+
+//            FillDocument();
+//            FillWord_Document();
+
             PrintMap(DocumentMap);
+
+            // Clear every thing to start again
             DocumentCount = 0;
             DocumentMap.clear();
+
+            // increment the loop
             Loop++;
         }
-//        PrintTotalMap();
     }
 
     // take the name of the file and read line by line and steam this line and fill database for this line
-    public void Indexing(String s){
+    private void Indexing(String url) {
         try {
-            File file = new File(s);
-            Scanner myReader = new Scanner(file);
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-//                System.out.println(S.stem(data));
-                FillDocumentMap(S.stem(data));
-            }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
+            this.document = Jsoup.connect(url).get();
+        } catch (IOException e){
+            System.out.println("Error in loading the page");
         }
+        GetDocumentInformation();
+
+        Elements elements = document.body().select("*");
+        for (Element element : elements) {
+            String Stemmed = S.stem(element.ownText());
+            if(StringUtils.isNotEmpty(Stemmed)){
+                FillDocumentMap(Stemmed);
+//                System.out.println(element.nodeName() + " => " + element.ownText());
+            }
+
+        }
+
+//        try {
+//            File file = new File(s);
+//            GetDocumentInformation();
+//            Scanner myReader = new Scanner(file);
+//            while (myReader.hasNextLine()) {
+//                String data = myReader.nextLine();
+//                if(StringUtils.isNotEmpty(data)){
+//                    System.out.println(S.stem(data));
+//                    Title = GetTagData("title",data);
+//                    FillDocumentMap(S.stem(data));
+//                }
+//            }
+//            myReader.close();
+//        } catch (FileNotFoundException e) {
+//            System.out.println("An error occurred.");
+//            e.printStackTrace();
+//        }
     }
 
     // Take stemmed line and put it in the database
-    public void FillDocumentMap(String s){
+    private void FillDocumentMap(String s){
         for (String word : s.split(" "))
         {
-//            PublicCount++;
             DocumentCount++;
             if (DocumentMap.containsKey(word))
                 DocumentMap.put(word,DocumentMap.get(word)+1);
             else
                 DocumentMap.put(word, 1);;
-
-
-//            if (PublicMap.containsKey(word))
-//                PublicMap.put(word,PublicMap.get(word)+1);
-//            else
-//                PublicMap.put(word, 1);;
         }
     }
 
-    public void PrintMap(HashMap<String, Integer> DocumentMap){
-        System.out.println("=============== " + this.files.get(Loop) + " =================");
+    private void PrintMap(HashMap<String, Integer> DocumentMap){
+        System.out.println("=============== " + Title + " =================");
 
         for (String key : DocumentMap.keySet()){
             System.out.println(key + " => " + DocumentMap.get(key));
         }
         System.out.println("The total words in this document is: "+ DocumentCount);
+        System.out.println("The Title of this document is : "+ Title);
     }
 
-    public void PrintTotalMap(){
-//        System.out.println("=============== Total =================");
-//        for (String key : PublicMap.keySet()){
-//            System.out.println(key + " => " + PublicMap.get(key));
-//        }
+    private void GetDocumentInformation(){
+        Title = document.title();
+        Link = links.get(Loop);
+    }
 
-//        System.out.println("================= Some Information ================");
-//        for(int i = 0 ; i < this.files.size(); i++){
-//            System.out.println("The total words in this document is: "+WordsInFiles.get(this.files.get(i)));
-//        }
-//        System.out.println("The total words in all documents is: "+PublicCount);
+    private String GetTagData(String s, String line){
+        Pattern p = Pattern.compile("<"+s+">(.+?)</"+s+">");
+        Matcher m = p.matcher(line);
+        if (m.find())
+            return (m.group(1));
+        else
+            return null;
+    }
+
+    public void FillDocument() {
+        String Query = "insert into document(hyper_link ," +
+//                                            "data_modified ," +
+                                            "doc_path_file ," +
+                                            "stream_words ," +
+                                            "popularity ," +
+                                            "Title ," +
+                                            "is_image" +
+                                            ") " +
+                                            "values('" +
+                                            Link + "' ,'" +
+//                                            null + "' ,'" +
+                                            Path + "' ,'" +
+                                            null + "' ," +
+                                            0 + " ,'" +
+                                            Title + "' ," +
+                                            0 +
+                                            ");";
+        try{
+            db.insertdb(Query);
+        }catch(SQLException throwables){
+            throwables.printStackTrace();
+        }
+
+    }
+
+    public void FillWord_Document(){
+        for (String key : DocumentMap.keySet()){
+
+            float tf = (float)DocumentMap.get(key)/DocumentCount;
+            String Query = "insert into word_document(word_name ," +
+                                                "document_hyper_link ," +
+                                                "tf ," +
+                                                "score" +
+                                                ") " +
+                                                "values('" +
+                                                key + "' ,'" +
+                                                Link + "' ," +
+                                                tf+"," +
+                                                0 +
+                                                ");";
+            try{
+                db.insertdb(Query);
+            }catch(SQLException throwables){
+                throwables.printStackTrace();
+            }
+        }
     }
 
 
     public static void main(String[] args){
-        ArrayList<String> files= new ArrayList<>();
-        files.add("test.txt");
-        files.add("test2.txt");
-        Indexer indexer = new Indexer(files);
+
+        ArrayList<String> links= new ArrayList<>();
+        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
+//        links.add("test2.txt");
+
+
+        // =======================================
+        // Those two line which mokhtar will call
+        Indexer indexer = new Indexer(links);
         indexer.Start();
     }
 

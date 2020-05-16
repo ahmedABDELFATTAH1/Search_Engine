@@ -20,10 +20,10 @@ public class DataBase {
     public static final String userTableName="user";
 
 
-    static final String wordTableCreate = "CREATE TABLE IF NOT EXISTS  "+wordTableName+
-            "(name VARCHAR(255) not NULL, " +
-            "idf FLOAT, "+
-            "PRIMARY KEY (name));";
+//    static final String wordTableCreate = "CREATE TABLE IF NOT EXISTS  "+wordTableName+
+//            "(name VARCHAR(255) not NULL, " +
+//            "idf FLOAT, "+
+//            "PRIMARY KEY (name));";
 
     static final String documentTableCreate = "CREATE TABLE IF NOT EXISTS "+documentTableName+
             "(hyper_link VARCHAR(255) not NULL, " +
@@ -40,7 +40,7 @@ public class DataBase {
             "document_hyper_link  VARCHAR(255) , "+
             "tf float ,"+
             "score float ,"+
-            "FOREIGN KEY (word_name) REFERENCES word(name),"+
+//            "FOREIGN KEY (word_name) REFERENCES word(name),"+
             "FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link));";
 
@@ -49,7 +49,7 @@ public class DataBase {
             "(word_name VARCHAR(255) not NULL, " +
             "document_hyper_link VARCHAR(255) NOT NULL , "+
             "word_position INT NOT NULL,"+
-            "FOREIGN KEY (word_name) REFERENCES word(name),"+
+//            "FOREIGN KEY (word_name) REFERENCES word(name),"+
             "FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
             "PRIMARY KEY (word_name,document_hyper_link,word_position));";
 
@@ -61,9 +61,6 @@ public class DataBase {
             "PRIMARY KEY (user_name));";
 
 
-
-
-
     public  static void main(String ar[]) throws SQLException, ClassNotFoundException {
         DataBase db=new DataBase();
         db.createConnection();
@@ -73,7 +70,7 @@ public class DataBase {
 
    public void createTables() throws SQLException {
         Statement stmt= connection.createStatement();
-        stmt.executeUpdate(wordTableCreate);
+//        stmt.executeUpdate(wordTableCreate);
         stmt.executeUpdate(documentTableCreate);
         stmt.executeUpdate(documentWordTableCreate);
         stmt.executeUpdate(userTableCreate);

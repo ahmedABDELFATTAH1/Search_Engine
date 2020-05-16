@@ -16,7 +16,7 @@ public class Stemmer {
         for (String word : replaceIllegalCharacter(s).split(" "))
         {
             word = RemvoeStopWords(word);
-            String stemmedWord = stemPrivate(word);
+            String stemmedWord = stemPrivate(word.toLowerCase());
             if (StringUtils.isNotEmpty(stemmedWord)) {
                 if (stringBuilder.length() > 0)
                     stringBuilder.append(' ');
