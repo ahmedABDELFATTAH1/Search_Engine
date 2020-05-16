@@ -1,5 +1,4 @@
 package ranker;
-import com.mysql.cj.protocol.Resultset;
 
 import java.sql.*;
 
