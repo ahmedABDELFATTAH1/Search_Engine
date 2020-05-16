@@ -71,8 +71,8 @@ public class Indexer {
         for (int i = 0 ; i < links.size() ; i++){
             Indexing(links.get(i));
 
-//            FillDocument();
-//            FillWord_Document();
+            FillDocument();
+            FillWord_Document();
 
             PrintMap(DocumentMap);
 
@@ -101,6 +101,8 @@ public class Indexer {
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed);
                 System.out.println(element.nodeName() + " => " + element.ownText());
+
+
                 if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
                     int index = element.ownText().indexOf(" ", 255);
                     if(index > 0)
@@ -147,10 +149,6 @@ public class Indexer {
             e.printStackTrace();
             sqlDate = new java.sql.Date(new Date(0).getTime());
         }
-
-        Brief = document.select("body>em").text();
-
-
     }
 
     private String GetTagData(String s, String line){
