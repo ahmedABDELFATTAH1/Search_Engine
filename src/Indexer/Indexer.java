@@ -71,8 +71,8 @@ public class Indexer {
         for (int i = 0 ; i < links.size() ; i++){
             Indexing(links.get(i));
 
-            FillDocument();
-            FillWord_Document();
+//            FillDocument();
+//            FillWord_Document();
 
             PrintMap(DocumentMap);
 
@@ -100,7 +100,8 @@ public class Indexer {
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed);
-                if(Flag && element.nodeName() == "p"){
+                System.out.println(element.nodeName() + " => " + element.ownText());
+                if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
                     int index = element.ownText().indexOf(" ", 255);
                     if(index > 0)
                         Brief = element.ownText().substring(0,index).trim();
@@ -164,21 +165,17 @@ public class Indexer {
     public void FillDocument() {
         String Query = "insert into document(hyper_link ," +
                                             "data_modified ," +
-                                            "doc_path_file ," +
                                             "stream_words ," +
                                             "popularity ," +
-                                            "Title ," +
-                                            "is_image" +
+                                            "Title" +
                                             ") " +
                                             "values('" +
                                             Link + "' ,'" +
                                             sqlDate + "' ,'" +
-                                            Path + "' ,'" +
                                             Brief + "' ," +
                                             0 + " ,'" +
-                                            Title + "' ," +
-                                            0 +
-                                            ");";
+                                            Title +
+                                            "');";
         try{
             db.insertdb(Query);
         }catch(SQLException throwables){
@@ -214,7 +211,8 @@ public class Indexer {
     public static void main(String[] args){
 
         ArrayList<String> links= new ArrayList<>();
-        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
+//        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
+        links.add("https://www.youtube.com/");
 //        links.add("test2.txt");
 
 

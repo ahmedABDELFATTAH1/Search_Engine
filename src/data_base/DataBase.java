@@ -10,7 +10,7 @@ public class DataBase {
     static final String DB_URL = "jdbc:mysql://localhost:3306/"+DATA_BASE_NAME+"?createDatabaseIfNotExist=true";
     //  Database credentials
     static final String USER = "root";
-    static final String PASS = "12";
+    static final String PASS = "password";
 
 
     public static final String documentTableName="document";
@@ -27,7 +27,6 @@ public class DataBase {
     static final String documentTableCreate = "CREATE TABLE IF NOT EXISTS "+documentTableName+
             "(hyper_link VARCHAR(255) not NULL, " +
             "data_modified  DATE ,"+
-            "doc_path_file VARCHAR(255) not NULL, "+
             "stream_words TEXT ,"+
             "popularity FLOAT ,"+
             "Title VARCHAR(255),"+
