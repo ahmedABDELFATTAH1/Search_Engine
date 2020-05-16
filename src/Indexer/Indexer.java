@@ -3,6 +3,9 @@ import data_base.DataBase;
 import Stemmer.Stemmer;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +14,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.io.File;  // Import the File class
 import java.io.FileNotFoundException;  // Import this class to handle errors
@@ -35,10 +39,12 @@ public class Indexer {
     private String Title;
 
     // DataBase
-    DataBase db;
+    private DataBase db;
 
     // Document
-    Document document;
+    private Document document;
+    java.sql.Date sqlDate;
+    String Brief;
 
 
     public Indexer(ArrayList<String> files){
@@ -65,8 +71,8 @@ public class Indexer {
         for (int i = 0 ; i < links.size() ; i++){
             Indexing(links.get(i));
 
-//            FillDocument();
-//            FillWord_Document();
+            FillDocument();
+            FillWord_Document();
 
             PrintMap(DocumentMap);
 
@@ -88,33 +94,22 @@ public class Indexer {
         }
         GetDocumentInformation();
 
+        boolean Flag = true;
         Elements elements = document.body().select("*");
         for (Element element : elements) {
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed);
-//                System.out.println(element.nodeName() + " => " + element.ownText());
+                if(Flag && element.nodeName() == "p"){
+                    int index = element.ownText().indexOf(" ", 255);
+                    if(index > 0)
+                        Brief = element.ownText().substring(0,index).trim();
+                    else
+                        Brief = element.ownText();
+                    Flag = !Flag;
+                }
             }
-
         }
-
-//        try {
-//            File file = new File(s);
-//            GetDocumentInformation();
-//            Scanner myReader = new Scanner(file);
-//            while (myReader.hasNextLine()) {
-//                String data = myReader.nextLine();
-//                if(StringUtils.isNotEmpty(data)){
-//                    System.out.println(S.stem(data));
-//                    Title = GetTagData("title",data);
-//                    FillDocumentMap(S.stem(data));
-//                }
-//            }
-//            myReader.close();
-//        } catch (FileNotFoundException e) {
-//            System.out.println("An error occurred.");
-//            e.printStackTrace();
-//        }
     }
 
     // Take stemmed line and put it in the database
@@ -142,6 +137,19 @@ public class Indexer {
     private void GetDocumentInformation(){
         Title = document.title();
         Link = links.get(Loop);
+
+        try{
+            URLConnection uc = new URL(Link).openConnection();
+            Date d = new Date(uc.getIfModifiedSince());
+            sqlDate = new java.sql.Date(d.getTime());
+        } catch (IOException e) {
+            e.printStackTrace();
+            sqlDate = new java.sql.Date(new Date(0).getTime());
+        }
+
+        Brief = document.select("body>em").text();
+
+
     }
 
     private String GetTagData(String s, String line){
@@ -155,7 +163,7 @@ public class Indexer {
 
     public void FillDocument() {
         String Query = "insert into document(hyper_link ," +
-//                                            "data_modified ," +
+                                            "data_modified ," +
                                             "doc_path_file ," +
                                             "stream_words ," +
                                             "popularity ," +
@@ -164,9 +172,9 @@ public class Indexer {
                                             ") " +
                                             "values('" +
                                             Link + "' ,'" +
-//                                            null + "' ,'" +
+                                            sqlDate + "' ,'" +
                                             Path + "' ,'" +
-                                            null + "' ," +
+                                            Brief + "' ," +
                                             0 + " ,'" +
                                             Title + "' ," +
                                             0 +
