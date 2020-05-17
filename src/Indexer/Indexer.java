@@ -27,7 +27,7 @@ public class Indexer {
 
     private ArrayList<String> links;
 
-    private HashMap<String, Integer> DocumentMap;
+    private HashMap<String, IndexAndFreq> DocumentMap;
 
     private int DocumentCount;
 
@@ -90,6 +90,7 @@ public class Indexer {
     private void Indexing(String url) {
         try {
             this.document = Jsoup.connect(url).get();
+//            this.document = Jsoup.parseBodyFragment(url);
         } catch (IOException e){
             System.out.println("Error in loading the page");
         }
@@ -120,19 +121,28 @@ public class Indexer {
     private void FillDocumentMap(String s){
         for (String word : s.split(" "))
         {
+            if (DocumentMap.containsKey(word)){
+                DocumentMap.get(word).Freg++;
+                DocumentMap.get(word).Index.add(DocumentCount);
+            }else{
+                IndexAndFreq temp = new IndexAndFreq();
+                temp.Freg = 1;
+                temp.Index.add(DocumentCount);
+                DocumentMap.put(word, temp);
+            }
             DocumentCount++;
-            if (DocumentMap.containsKey(word))
-                DocumentMap.put(word,DocumentMap.get(word)+1);
-            else
-                DocumentMap.put(word, 1);;
         }
     }
 
-    private void PrintMap(HashMap<String, Integer> DocumentMap){
+    private void PrintMap(HashMap<String, IndexAndFreq> DocumentMap){
         System.out.println("=============== " + Title + " =================");
 
         for (String key : DocumentMap.keySet()){
-            System.out.println(key + " => " + DocumentMap.get(key));
+            System.out.print(key + " => " + DocumentMap.get(key).Freg+" => ");
+            for(int i : DocumentMap.get(key).Index){
+                System.out.print(i + " ");
+            }
+            System.out.println();
         }
         System.out.println("The total words in this document is: "+ DocumentCount);
         System.out.println("The Title of this document is : "+ Title);
@@ -185,7 +195,7 @@ public class Indexer {
     public void FillWord_Document(){
         for (String key : DocumentMap.keySet()){
 
-            float tf = (float)DocumentMap.get(key)/DocumentCount;
+            float tf = (float)DocumentMap.get(key).Freg/DocumentCount;
             String Query = "insert into word_document(word_name ," +
                                                 "document_hyper_link_id ," +
                                                 "tf ," +
@@ -209,15 +219,21 @@ public class Indexer {
     public static void main(String[] args){
 
         ArrayList<String> links= new ArrayList<>();
-//        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
         links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
-//        links.add("test2.txt");
-
-
+//        links.add("https://elegant-jones-f4e94a.netlify.com/valid_doc.html");
+//        links.add("https://wuzzuf.net/internship/288003-PHP-Developer---Internship-ElMnassa-Innovation-Development-Cairo-Egypt?l=cup&t=bj&a=Internships-in-Egypt&o=2");
+//        links.add("https://localhost/test.html");
+//        links.add("Check out my cool website: <ytd-rich-grid-video-renderer> how are you <a href='http://example.com' onclick='javascript: extractUsersSessionId()'>It's right here</a> </ytd-rich-grid-video-renderer>");
         // =======================================
         // Those two line which mokhtar will call
         Indexer indexer = new Indexer(links);
         indexer.Start();
     }
 
+}
+
+
+class IndexAndFreq{
+    int Freg;
+    ArrayList<Integer> Index = new ArrayList<>();
 }
