@@ -194,7 +194,7 @@ public class Indexer {
 
     public void FillWord_Document(){
         for (String key : DocumentMap.keySet()){
-
+            int ID = 0;
             float tf = (float)DocumentMap.get(key).Freg/DocumentCount;
             String Query = "insert into word_document(word_name ," +
                                                 "document_hyper_link_id ," +
@@ -208,10 +208,26 @@ public class Indexer {
                                                 0 +
                                                 ");";
             try{
-                db.insertdb(Query);
+                ID = db.insertdb(Query);
             }catch(SQLException throwables){
                 throwables.printStackTrace();
             }
+
+            for(int index : DocumentMap.get(key).Index){
+                Query = "insert into word_index(word_document_id ," +
+                                                "word_position" +
+                                                ") " +
+                                                "values(" +
+                                                ID + " ," +
+                                                index +
+                                                ");";
+                try{
+                    db.insertdb(Query);
+                }catch(SQLException throwables){
+                    throwables.printStackTrace();
+                }
+            }
+
         }
     }
 
@@ -229,7 +245,6 @@ public class Indexer {
         Indexer indexer = new Indexer(links);
         indexer.Start();
     }
-
 }
 
 
