@@ -45,6 +45,7 @@ public class Indexer {
     private Document document;
     java.sql.Date sqlDate;
     String Brief;
+    int LastLinkId;
 
 
     public Indexer(ArrayList<String> files){
@@ -175,11 +176,10 @@ public class Indexer {
                                             Title +
                                             "');";
         try{
-            db.insertdb(Query);
+            LastLinkId = db.insertdb(Query);
         }catch(SQLException throwables){
             throwables.printStackTrace();
         }
-
     }
 
     public void FillWord_Document(){
@@ -187,13 +187,13 @@ public class Indexer {
 
             float tf = (float)DocumentMap.get(key)/DocumentCount;
             String Query = "insert into word_document(word_name ," +
-                                                "document_hyper_link ," +
+                                                "document_hyper_link_id ," +
                                                 "tf ," +
                                                 "score" +
                                                 ") " +
                                                 "values('" +
                                                 key + "' ,'" +
-                                                Link + "' ," +
+                                                LastLinkId + "' ," +
                                                 tf+"," +
                                                 0 +
                                                 ");";
@@ -210,7 +210,7 @@ public class Indexer {
 
         ArrayList<String> links= new ArrayList<>();
 //        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
-        links.add("https://www.youtube.com/");
+        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
 //        links.add("test2.txt");
 
 

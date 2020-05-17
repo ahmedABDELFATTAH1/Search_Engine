@@ -25,20 +25,23 @@ public class DataBase {
 
 
     static final String documentTableCreate = "CREATE TABLE IF NOT EXISTS "+documentTableName+
-            "(hyper_link VARCHAR(255) not NULL, " +
+            "(id int auto_increment, " +
+            "hyper_link VARCHAR(255) not NULL, " +
             "data_modified  DATE ,"+
             "stream_words TEXT ,"+
             "popularity FLOAT ,"+
             "Title VARCHAR(255),"+
-            "PRIMARY KEY (hyper_link));";
+            "PRIMARY KEY (id));";
 
     static final String documentWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+documentWordTableName+
-            "(word_name VARCHAR(255) not NULL, " +
-            " document_hyper_link  VARCHAR(255) , "+
+            "(id int auto_increment," +
+            "word_name VARCHAR(255) not NULL, " +
+            "document_hyper_link_id  int not null, "+
             "tf float ,"+
             "score float ,"+
-             " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
-            "PRIMARY KEY (word_name,document_hyper_link));";
+            "FOREIGN KEY (document_hyper_link_id) REFERENCES document(id),"+
+            "primary key (id),"+
+            "unique(word_name,document_hyper_link_id));";
 
 
 
@@ -58,11 +61,11 @@ public class DataBase {
 
 
     static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
-            " (word_name VARCHAR(255) not NULL, " +
-            " document_hyper_link VARCHAR(255) NOT NULL , "+
+            "(id int auto_increment, " +
+            "word_document_id int not null, "+
             "word_position INT NOT NULL,"+
-            " FOREIGN KEY (document_hyper_link) REFERENCES document(hyper_link),"+
-            "PRIMARY KEY (word_name,document_hyper_link,word_position));";
+            "FOREIGN KEY (word_document_id) REFERENCES word_document(id),"+
+            "PRIMARY KEY (id));";
 
 
 
@@ -105,10 +108,21 @@ public class DataBase {
         return rs;
     }
     public int insertdb(String sqlStatement) throws SQLException {
-        Statement stmt= connection.createStatement();
-        int rs = stmt.executeUpdate(sqlStatement);
-        //stmt.close();
-        return rs;
+//        Statement stmt= connection.createStatement();
+//        int rs = stmt.executeUpdate(sqlStatement, Statement.RETURN_GENERATED_KEYS);
+//        //stmt.close();
+//        return rs;
+
+        PreparedStatement ps = connection.prepareStatement(sqlStatement, Statement.RETURN_GENERATED_KEYS);
+        ps.execute();
+
+        ResultSet rs = ps.getGeneratedKeys();
+        int generatedKey = 0;
+        if (rs.next()) {
+            generatedKey = rs.getInt(1);
+        }
+        return generatedKey;
+
     }
     int deletedb(String sqlStatement) throws SQLException {
         Statement stmt= connection.createStatement();
