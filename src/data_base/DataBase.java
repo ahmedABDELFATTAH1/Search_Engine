@@ -48,6 +48,7 @@ public class DataBase {
     static final String imageTableCreate = "CREATE TABLE IF NOT EXISTS "+imageTableName+
             "(image_url VARCHAR(255) not NULL, " +
             "caption Text,"+
+            "stemmed Text,"+
             "PRIMARY KEY (image_url));";
 
     static final String imageWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+imageWordTableName+

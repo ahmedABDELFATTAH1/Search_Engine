@@ -2,6 +2,7 @@ package Indexer;
 import data_base.DataBase;
 import Stemmer.Stemmer;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,18 +48,21 @@ public class Indexer {
     String Brief;
     int LastLinkId;
 
+    // Image
+    ArrayList<ImageData> Images;
+
 
     public Indexer(ArrayList<String> files){
         S = new Stemmer();
         DocumentMap = new HashMap<>();
         this.links = new ArrayList<String>();
+        this.Images = new ArrayList<ImageData>();
 
         this.links = files;
         DocumentCount = 0;
         Loop = 0;
 
         ConnectDataBase();
-
     }
 
     // Connect to database and create it;
@@ -72,8 +76,9 @@ public class Indexer {
         for (int i = 0 ; i < links.size() ; i++){
             Indexing(links.get(i));
 
-            FillDocument();
-            FillWord_Document();
+//            FillDocument();
+//            FillWord_Document();
+//            FillImageTable();
 
             PrintMap(DocumentMap);
 
@@ -99,12 +104,25 @@ public class Indexer {
         boolean Flag = true;
         Elements elements = document.body().select("*");
         for (Element element : elements) {
+
+            // Image Map
+            if(element.nodeName().equals("img") && StringUtils.isNotEmpty(element.attr("src")) && StringUtils.isNotEmpty(element.attr("alt"))){
+                String ImageStemmed = S.stem(element.attr("alt"));
+                if(StringUtils.isNotEmpty(ImageStemmed)){
+                    FillImages(element,ImageStemmed);
+                    System.out.println(element.attr("src"));
+                    System.out.println(element.attr("alt"));
+                }
+                continue;
+            }
+
+            // Ordinary Map
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed);
                 System.out.println(element.nodeName() + " => " + element.ownText());
 
-
+                // Brief
                 if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
                     int index = element.ownText().indexOf(" ", 255);
                     if(index > 0)
@@ -132,6 +150,14 @@ public class Indexer {
             }
             DocumentCount++;
         }
+    }
+
+    private void FillImages(Element e,String s){
+        ImageData image = new ImageData();
+        image.Catption = e.attr("alt");
+        image.Stemmed = s;
+        image.Src = e.attr("src");
+        Images.add(image);
     }
 
     private void PrintMap(HashMap<String, IndexAndFreq> DocumentMap){
@@ -231,11 +257,32 @@ public class Indexer {
         }
     }
 
+    private void FillImageTable(){
+        for (ImageData i : Images){
+                String Query = "insert into word_index(image_url ," +
+                                                        "caption" +
+                                                        "stemmed" +
+                                                        ") " +
+                                                        "values('" +
+                                                        i.Src + "' ,'" +
+                                                        i.Catption + "' ,'" +
+                                                        i.Stemmed +
+                                                        "');";
+            try{
+                db.insertdb(Query);
+            }catch(SQLException throwables){
+                throwables.printStackTrace();
+            }
+        }
+    }
+
 
     public static void main(String[] args){
 
         ArrayList<String> links= new ArrayList<>();
-        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
+//        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
+//        links.add("https://www.facebook.com");
+        links.add("https://www.fatakat.com/");
 //        links.add("https://elegant-jones-f4e94a.netlify.com/valid_doc.html");
 //        links.add("https://wuzzuf.net/internship/288003-PHP-Developer---Internship-ElMnassa-Innovation-Development-Cairo-Egypt?l=cup&t=bj&a=Internships-in-Egypt&o=2");
 //        links.add("https://localhost/test.html");
@@ -251,4 +298,10 @@ public class Indexer {
 class IndexAndFreq{
     int Freg;
     ArrayList<Integer> Index = new ArrayList<>();
+}
+
+class ImageData{
+    String Src;
+    String Stemmed;
+    String Catption;
 }
