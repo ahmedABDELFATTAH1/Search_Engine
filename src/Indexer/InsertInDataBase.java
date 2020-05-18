@@ -23,9 +23,9 @@ public class InsertInDataBase {
         db.deletedb(Query);
 
         ArrayList<String> links= new ArrayList<>();
-        links.add("https://www.google.com");
-        links.add("https://en.wikipedia.org/wiki/AND_gate");
-        links.add("https://en.wikipedia.org/wiki/OR_gate");
+        links.add("https://www.geeksforgeeks.org/binary-search/");
+//        links.add("https://en.wikipedia.org/wiki/AND_gate");
+//        links.add("https://en.wikipedia.org/wiki/OR_gate");
 
 //        links.add("https://elegant-jones-f4e94a.netlify.com/valid_doc.html");
 //        links.add("https://wuzzuf.net/internship/288003-PHP-Developer---Internship-ElMnassa-Innovation-Development-Cairo-Egypt?l=cup&t=bj&a=Internships-in-Egypt&o=2");
@@ -33,8 +33,8 @@ public class InsertInDataBase {
 
 
         HashMap<String,Integer> hosts = new HashMap<String , Integer>();
-        hosts.put("www.google.com",1);
-        hosts.put("en.wikipedia.org",2);
+        hosts.put("www.geeksforgeeks.org",1);
+//        hosts.put("en.wikipedia.org",2);
 
 
         for(String s :links){

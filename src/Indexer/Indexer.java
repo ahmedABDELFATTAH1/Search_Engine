@@ -90,9 +90,9 @@ public class Indexer {
         while (this.links.next()){
             Indexing(this.links.getString("url"));
 
-            FillDocument();
-            FillWord_Document();
-            FillImageTable();
+//            FillDocument();
+//            FillWord_Document();
+//            FillImageTable();
 
             PrintMap(DocumentMap);
 
@@ -129,7 +129,7 @@ public class Indexer {
         for (Element element : elements) {
 
             // Image Map
-            if(element.nodeName().equals("img") && StringUtils.isNotEmpty(element.attr("src")) && StringUtils.isNotEmpty(element.attr("alt"))){
+            if(element.nodeName().equals("img") && StringUtils.isNotEmpty(element.attr("src")) && StringUtils.isNotEmpty(element.attr("alt")) && IsImage(element.attr("src"))){
                 String ImageStemmed = S.stem(element.attr("alt"));
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
@@ -142,7 +142,7 @@ public class Indexer {
             // Ordinary Map
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
-                FillDocumentMap(Stemmed);
+                FillDocumentMap(Stemmed, GetScore(element.nodeName()));
                 System.out.println(element.nodeName() + " => " + element.ownText());
 
                 // Brief
@@ -159,19 +159,64 @@ public class Indexer {
     }
 
     // Take stemmed line and put it in the database
-    private void FillDocumentMap(String s){
+    private void FillDocumentMap(String s,int score){
         for (String word : s.split(" "))
         {
             if (DocumentMap.containsKey(word)){
                 DocumentMap.get(word).Freg++;
+                DocumentMap.get(word).Extra+=score;
                 DocumentMap.get(word).Index.add(DocumentCount);
             }else{
                 IndexAndFreq temp = new IndexAndFreq();
                 temp.Freg = 1;
                 temp.Index.add(DocumentCount);
+                temp.Extra = score;
                 DocumentMap.put(word, temp);
             }
             DocumentCount++;
+        }
+    }
+
+    private int GetScore(String tag){
+        switch(tag){
+            case("h1"):
+                return 6;
+
+            case("h2"):
+                return 5;
+
+            case("h3"):
+                return 4;
+
+            case("h4"):
+                return 3;
+
+            case("h5"):
+                return 2;
+
+            case("h6"):
+                return 1;
+
+            case("em"):
+                return 1;
+
+            case("strong"):
+                return 2;
+
+            case("b"):
+                return 2;
+
+            case("i"):
+                return 1;
+
+            case("u"):
+                return 2;
+
+            case("title"):
+                return 10;
+
+            default:
+                return 0;
         }
     }
 
@@ -187,7 +232,7 @@ public class Indexer {
         System.out.println("=============== " + Title + " =================");
 
         for (String key : DocumentMap.keySet()){
-            System.out.print(key + " => " + DocumentMap.get(key).Freg+" => ");
+            System.out.print(key + " => " + DocumentMap.get(key).Freg+" => " + DocumentMap.get(key).Extra +" => ");
             for(int i : DocumentMap.get(key).Index){
                 System.out.print(i + " ");
             }
@@ -199,6 +244,7 @@ public class Indexer {
 
     private void GetDocumentInformation(String url) throws MalformedURLException, SQLException {
         Title = document.title();
+        FillDocumentMap(S.stem(Title),GetScore("title"));
         Link = url;
 
         try{
@@ -218,13 +264,13 @@ public class Indexer {
         Popularity = (float)temp/TotalFreq;
     }
 
-    private String GetTagData(String s, String line){
-        Pattern p = Pattern.compile("<"+s+">(.+?)</"+s+">");
-        Matcher m = p.matcher(line);
+    private Boolean IsImage(String s){
+        Pattern p = Pattern.compile("http(s)?:\\/\\/.*");
+        Matcher m = p.matcher(s);
         if (m.find())
-            return (m.group(1));
+            return true;
         else
-            return null;
+            return false;
     }
 
     public void FillDocument() {
@@ -251,7 +297,7 @@ public class Indexer {
     public void FillWord_Document(){
         for (String key : DocumentMap.keySet()){
             int ID = 0;
-            float tf = (float)DocumentMap.get(key).Freg/DocumentCount;
+            float tf = (float)(DocumentMap.get(key).Freg+DocumentMap.get(key).Extra)/DocumentCount;
             String Query = "insert into word_document(word_name ," +
                                                 "document_hyper_link_id ," +
                                                 "tf ," +
@@ -317,6 +363,7 @@ public class Indexer {
 class IndexAndFreq{
     int Freg;
     ArrayList<Integer> Index = new ArrayList<>();
+    int Extra = 0;
 }
 
 class ImageData{

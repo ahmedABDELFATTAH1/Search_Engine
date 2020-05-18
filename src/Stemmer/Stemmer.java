@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class Stemmer {
 
-    private final static String ILLEGAL_REGEX_PATTERN = "([^a-zA-Z0-9])|(\\b\\d*\\b)|(\\b\\w{1}\\b)";
+    private final static String ILLEGAL_REGEX_PATTERN = "([^a-zA-Z0-9])|(\\b[a-zA-Z]{1}\\b)|(\\b\\d*\\b)";
     private static HashMap<String, Integer> map = new HashMap<>();
 
     public Stemmer(){
@@ -27,7 +27,8 @@ public class Stemmer {
                 stringBuilder.append(stemmedWord);
             }
         }
-        return (stringBuilder.toString());
+        String res =  (stringBuilder.toString());
+        return replaceIllegalCharacter(res);
     }
 
     private static String stemPrivate(String word)
@@ -187,7 +188,7 @@ public class Stemmer {
 
 
     public static void main(String[] args){
-        String test = "this main function for just testing, enjoy ;) 1 2 3 4 1234 a b c d abcd #$%^";
+        String test = "js";
         Stemmer S = new Stemmer();
         System.out.print(S.stem(test));
     }
