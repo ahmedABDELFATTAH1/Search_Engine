@@ -90,9 +90,9 @@ public class Indexer {
         while (this.links.next()){
             Indexing(this.links.getString("url"));
 
-//            FillDocument();
-//            FillWord_Document();
-//            FillImageTable();
+            FillDocument();
+            FillWord_Document();
+            FillImageTable();
 
             PrintMap(DocumentMap);
 

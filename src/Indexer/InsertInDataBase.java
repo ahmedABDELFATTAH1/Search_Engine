@@ -22,6 +22,18 @@ public class InsertInDataBase {
         Query = "delete from hosts_popularity";
         db.deletedb(Query);
 
+        Query = "delete from word_index";
+        db.deletedb(Query);
+
+        Query = "delete from word_document";
+        db.deletedb(Query);
+
+        Query = "Delete from document";
+        db.deletedb(Query);
+
+        Query = "Delete from image";
+        db.deletedb(Query);
+
         ArrayList<String> links= new ArrayList<>();
         links.add("https://www.geeksforgeeks.org/binary-search/");
 //        links.add("https://en.wikipedia.org/wiki/AND_gate");
