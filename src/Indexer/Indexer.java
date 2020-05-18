@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,8 @@ import java.util.regex.Pattern;
 public class Indexer {
     private Stemmer S;
 
-    private ArrayList<String> links;
+//    private ArrayList<String> links;
+    private ResultSet links;
 
     private HashMap<String, IndexAndFreq> DocumentMap;
 
@@ -47,22 +49,24 @@ public class Indexer {
     java.sql.Date sqlDate;
     String Brief;
     int LastLinkId;
+    int TotalFreq;
+    float Popularity;
 
     // Image
     ArrayList<ImageData> Images;
 
 
-    public Indexer(ArrayList<String> files){
+    public Indexer() throws SQLException {
         S = new Stemmer();
         DocumentMap = new HashMap<>();
-        this.links = new ArrayList<String>();
         this.Images = new ArrayList<ImageData>();
 
-        this.links = files;
         DocumentCount = 0;
         Loop = 0;
 
         ConnectDataBase();
+        GetLinksFromDataBase();
+        Start();
     }
 
     // Connect to database and create it;
@@ -71,10 +75,20 @@ public class Indexer {
         db.CreateDataBase();
     }
 
+    private void GetLinksFromDataBase() throws SQLException {
+        String Query = "Select url from crawler_urls";
+        this.links = db.selectQuerydb(Query);
+
+        Query = "Select Sum(host_ref_times) from hosts_popularity";
+        ResultSet r = db.selectQuerydb(Query);
+        r.next();
+        TotalFreq = r.getInt(1);
+    }
+
     // iterate the array list of files and pass it to indexer to work on it
-    private void Start(){
-        for (int i = 0 ; i < links.size() ; i++){
-            Indexing(links.get(i));
+    private void Start() throws SQLException {
+        while (this.links.next()){
+            Indexing(this.links.getString("url"));
 
 //            FillDocument();
 //            FillWord_Document();
@@ -93,16 +107,25 @@ public class Indexer {
 
     // take the name of the file and read line by line and steam this line and fill database for this line
     private void Indexing(String url) {
+        // Connect with url
         try {
             this.document = Jsoup.connect(url).get();
 //            this.document = Jsoup.parseBodyFragment(url);
         } catch (IOException e){
             System.out.println("Error in loading the page");
         }
-        GetDocumentInformation();
+
+        // Get Information of document
+        try {
+            GetDocumentInformation(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
 
         boolean Flag = true;
-        Elements elements = document.body().select("*");
+        Elements elements = document.body().getAllElements();
         for (Element element : elements) {
 
             // Image Map
@@ -174,9 +197,9 @@ public class Indexer {
         System.out.println("The Title of this document is : "+ Title);
     }
 
-    private void GetDocumentInformation(){
+    private void GetDocumentInformation(String url) throws MalformedURLException, SQLException {
         Title = document.title();
-        Link = links.get(Loop);
+        Link = url;
 
         try{
             URLConnection uc = new URL(Link).openConnection();
@@ -186,6 +209,13 @@ public class Indexer {
             e.printStackTrace();
             sqlDate = new java.sql.Date(new Date(0).getTime());
         }
+
+        URL U = new URL(url);
+        String Query = "Select host_ref_times from hosts_popularity where host_name = '" + U.getHost() + "';";
+        ResultSet r = db.selectQuerydb(Query);
+        r.next();
+        int temp= r.getInt(1);
+        Popularity = (float)temp/TotalFreq;
     }
 
     private String GetTagData(String s, String line){
@@ -208,7 +238,7 @@ public class Indexer {
                                             Link + "' ,'" +
                                             sqlDate + "' ,'" +
                                             Brief + "' ," +
-                                            0 + " ,'" +
+                                            Popularity + " ,'" +
                                             Title +
                                             "');";
         try{
@@ -277,20 +307,21 @@ public class Indexer {
     }
 
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws SQLException {
 
         ArrayList<String> links= new ArrayList<>();
 //        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
 //        links.add("https://www.facebook.com");
-        links.add("https://worldbuilding.stackexchange.com/questions/tagged/medicine/");
+//        links.add("https://worldbuilding.stackexchange.com/questions/tagged/medicine/");
 //        links.add("https://elegant-jones-f4e94a.netlify.com/valid_doc.html");
 //        links.add("https://wuzzuf.net/internship/288003-PHP-Developer---Internship-ElMnassa-Innovation-Development-Cairo-Egypt?l=cup&t=bj&a=Internships-in-Egypt&o=2");
 //        links.add("https://localhost/test.html");
 //        links.add("Check out my cool website: <ytd-rich-grid-video-renderer> how are you <a href='http://example.com' onclick='javascript: extractUsersSessionId()'>It's right here</a> </ytd-rich-grid-video-renderer>");
+
         // =======================================
+
         // Those two line which mokhtar will call
-        Indexer indexer = new Indexer(links);
-        indexer.Start();
+        Indexer indexer = new Indexer();
     }
 }
 

@@ -73,3 +73,7 @@ ALTER TABLE `forbidden_urls`
 ALTER TABLE `hosts_popularity`
   MODIFY `host_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 COMMIT;
+
+
+-- insert into crawler_urls(url) values('https://www.google.com/search/howsearchworks/');
+-- insert into hosts_popularity(host_name,host_ref_times)values('www.google.com',1);
