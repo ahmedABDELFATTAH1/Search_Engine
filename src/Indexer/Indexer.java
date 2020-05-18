@@ -259,9 +259,13 @@ public class Indexer {
         URL U = new URL(url);
         String Query = "Select host_ref_times from hosts_popularity where host_name = '" + U.getHost() + "';";
         ResultSet r = db.selectQuerydb(Query);
-        r.next();
-        int temp= r.getInt(1);
-        Popularity = (float)temp/TotalFreq;
+        if(r.next() != false){
+            int temp= r.getInt(1);
+            Popularity = (float)temp/TotalFreq;
+        }else{
+            Popularity = 0;
+        }
+
     }
 
     private Boolean IsImage(String s){
@@ -280,13 +284,13 @@ public class Indexer {
                                             "popularity ," +
                                             "Title" +
                                             ") " +
-                                            "values('" +
-                                            Link + "' ,'" +
-                                            sqlDate + "' ,'" +
-                                            Brief + "' ," +
-                                            Popularity + " ,'" +
+                                            "values(\"" +
+                                            Link + "\" ,\"" +
+                                            sqlDate + "\" ,\"" +
+                                            Brief + "\" ," +
+                                            Popularity + " ,\"" +
                                             Title +
-                                            "');";
+                                            "\");";
         try{
             LastLinkId = db.insertdb(Query);
         }catch(SQLException throwables){
@@ -303,9 +307,9 @@ public class Indexer {
                                                 "tf ," +
                                                 "score" +
                                                 ") " +
-                                                "values('" +
-                                                key + "' ,'" +
-                                                LastLinkId + "' ," +
+                                                "values(\"" +
+                                                key + "\" ,\"" +
+                                                LastLinkId + "\" ," +
                                                 tf+"," +
                                                 0 +
                                                 ");";
@@ -339,11 +343,11 @@ public class Indexer {
                                                         "caption," +
                                                         "stemmed" +
                                                         ") " +
-                                                        "values('" +
-                                                        i.Src + "' ,'" +
-                                                        i.Catption + "' ,'" +
+                                                        "values(\"" +
+                                                        i.Src + "\" ,\"" +
+                                                        i.Catption + "\" ,\"" +
                                                         i.Stemmed +
-                                                        "');";
+                                                        "\");";
             try{
                 db.insertdb(Query);
             }catch(SQLException throwables){
