@@ -46,10 +46,11 @@ public class DataBase {
 
 
     static final String imageTableCreate = "CREATE TABLE IF NOT EXISTS "+imageTableName+
-            "(image_url VARCHAR(255) not NULL, " +
+            "(id int auto_increment, " +
+            "image_url varchar(512),"+
             "caption Text,"+
             "stemmed Text,"+
-            "PRIMARY KEY (image_url));";
+            "PRIMARY KEY (id));";
 
     static final String imageWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+imageWordTableName+
             "(word_name VARCHAR(255) not NULL, " +
@@ -90,7 +91,7 @@ public class DataBase {
         stmt.executeUpdate(documentTableCreate);
         stmt.executeUpdate(documentWordTableCreate);
         stmt.executeUpdate(imageTableCreate);
-        stmt.executeUpdate(imageWordTableCreate);
+//        stmt.executeUpdate(imageWordTableCreate);
         stmt.executeUpdate(indexTableCreate);
         stmt.executeUpdate(trendsTableCreate);
         stmt.executeUpdate(suggestionTableCreate);
@@ -125,7 +126,7 @@ public class DataBase {
         return generatedKey;
 
     }
-    int deletedb(String sqlStatement) throws SQLException {
+    public int deletedb(String sqlStatement) throws SQLException {
         Statement stmt= connection.createStatement();
         int rs = stmt.executeUpdate(sqlStatement);
         return rs;
