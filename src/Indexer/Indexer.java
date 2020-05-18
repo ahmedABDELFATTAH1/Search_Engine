@@ -282,7 +282,7 @@ public class Indexer {
         ArrayList<String> links= new ArrayList<>();
 //        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
 //        links.add("https://www.facebook.com");
-        links.add("https://www.fatakat.com/");
+        links.add("https://worldbuilding.stackexchange.com/questions/tagged/medicine/");
 //        links.add("https://elegant-jones-f4e94a.netlify.com/valid_doc.html");
 //        links.add("https://wuzzuf.net/internship/288003-PHP-Developer---Internship-ElMnassa-Innovation-Development-Cairo-Egypt?l=cup&t=bj&a=Internships-in-Egypt&o=2");
 //        links.add("https://localhost/test.html");
