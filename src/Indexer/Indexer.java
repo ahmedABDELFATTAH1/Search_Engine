@@ -284,13 +284,13 @@ public class Indexer {
                                             "popularity ," +
                                             "Title" +
                                             ") " +
-                                            "values(\"" +
-                                            Link + "\" ,\"" +
-                                            sqlDate + "\" ,\"" +
+                                            "values('" +
+                                            Link + "' ,'" +
+                                            sqlDate + "' ,\"" +
                                             Brief + "\" ," +
-                                            Popularity + " ,\"" +
+                                            Popularity + " ,'" +
                                             Title +
-                                            "\");";
+                                            "');";
         try{
             LastLinkId = db.insertdb(Query);
         }catch(SQLException throwables){
@@ -307,9 +307,9 @@ public class Indexer {
                                                 "tf ," +
                                                 "score" +
                                                 ") " +
-                                                "values(\"" +
-                                                key + "\" ,\"" +
-                                                LastLinkId + "\" ," +
+                                                "values('" +
+                                                key + "' ," +
+                                                LastLinkId + " ," +
                                                 tf+"," +
                                                 0 +
                                                 ");";
@@ -343,8 +343,8 @@ public class Indexer {
                                                         "caption," +
                                                         "stemmed" +
                                                         ") " +
-                                                        "values(\"" +
-                                                        i.Src + "\" ,\"" +
+                                                        "values('" +
+                                                        i.Src + "' ,\"" +
                                                         i.Catption + "\" ,\"" +
                                                         i.Stemmed +
                                                         "\");";
