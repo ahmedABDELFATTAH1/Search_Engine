@@ -257,6 +257,9 @@ public class Indexer {
         }
 
         URL U = new URL(url);
+        System.out.println(U.getHost());
+        System.out.println("===========================================================");
+        System.out.println("===========================================================");
         String Query = "Select host_ref_times from hosts_popularity where host_name = '" + U.getHost() + "';";
         ResultSet r = db.selectQuerydb(Query);
         if(r.next() != false){
@@ -278,6 +281,8 @@ public class Indexer {
     }
 
     public void FillDocument() {
+        Title.replace('\"',' ');
+        Brief.replace('\"',' ');
         String Query = "insert into document(hyper_link ," +
                                             "data_modified ," +
                                             "stream_words ," +
@@ -288,9 +293,9 @@ public class Indexer {
                                             Link + "' ,'" +
                                             sqlDate + "' ,\"" +
                                             Brief + "\" ," +
-                                            Popularity + " ,'" +
+                                            Popularity + " ,\"" +
                                             Title +
-                                            "');";
+                                            "\");";
         try{
             LastLinkId = db.insertdb(Query);
         }catch(SQLException throwables){
@@ -300,6 +305,7 @@ public class Indexer {
 
     public void FillWord_Document(){
         for (String key : DocumentMap.keySet()){
+            key.replace('\"', ' ');
             int ID = 0;
             float tf = (float)(DocumentMap.get(key).Freg+DocumentMap.get(key).Extra)/DocumentCount;
             String Query = "insert into word_document(word_name ," +
@@ -307,8 +313,8 @@ public class Indexer {
                                                 "tf ," +
                                                 "score" +
                                                 ") " +
-                                                "values('" +
-                                                key + "' ," +
+                                                "values(\"" +
+                                                key + "\" ," +
                                                 LastLinkId + " ," +
                                                 tf+"," +
                                                 0 +
@@ -339,14 +345,20 @@ public class Indexer {
 
     private void FillImageTable(){
         for (ImageData i : Images){
+            String src = i.Src;
+            String caption = i.Catption;
+            String stemmed = i.Stemmed;
+
+            caption.replace('\"',' ');
+            stemmed.replace('\"', ' ');
                 String Query = "insert into image(image_url ," +
                                                         "caption," +
                                                         "stemmed" +
                                                         ") " +
                                                         "values('" +
-                                                        i.Src + "' ,\"" +
-                                                        i.Catption + "\" ,\"" +
-                                                        i.Stemmed +
+                                                        src + "' ,\"" +
+                                                        caption + "\" ,\"" +
+                                                        stemmed +
                                                         "\");";
             try{
                 db.insertdb(Query);
