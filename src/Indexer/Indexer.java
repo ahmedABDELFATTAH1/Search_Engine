@@ -1,6 +1,4 @@
 package Indexer;
-import data_base.DataBase;
-import Stemmer.Stemmer;
 
 import java.awt.*;
 import java.io.IOException;
@@ -10,6 +8,9 @@ import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import Stemmer.Stemmer;
+import data_base.DataBase;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,7 +28,7 @@ import java.util.regex.Pattern;
 public class Indexer {
     private Stemmer S;
 
-//    private ArrayList<String> links;
+    //    private ArrayList<String> links;
     private ResultSet links;
 
     private HashMap<String, IndexAndFreq> DocumentMap;
@@ -94,7 +95,7 @@ public class Indexer {
             FillWord_Document();
             FillImageTable();
 
-            PrintMap(DocumentMap);
+            // PrintMap(DocumentMap);
 
             // Clear every thing to start again
             DocumentCount = 0;
@@ -133,8 +134,8 @@ public class Indexer {
                 String ImageStemmed = S.stem(element.attr("alt"));
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
-                    System.out.println(element.attr("src"));
-                    System.out.println(element.attr("alt"));
+                    //  System.out.println(element.attr("src"));
+                    // System.out.println(element.attr("alt"));
                 }
                 continue;
             }
@@ -143,7 +144,7 @@ public class Indexer {
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed, GetScore(element.nodeName()));
-                System.out.println(element.nodeName() + " => " + element.ownText());
+                // System.out.println(element.nodeName() + " => " + element.ownText());
 
                 // Brief
                 if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
@@ -281,21 +282,24 @@ public class Indexer {
     }
 
     public void FillDocument() {
-        Title.replace('\"',' ');
-        Brief.replace('\"',' ');
+        Title=Title.replace('\"',' ');
+        Brief=Brief.replace('\"',' ');
+        Title=Title.replace("'"," ");
+        Brief=Brief.replace("'","");
         String Query = "insert into document(hyper_link ," +
-                                            "data_modified ," +
-                                            "stream_words ," +
-                                            "popularity ," +
-                                            "Title" +
-                                            ") " +
-                                            "values('" +
-                                            Link + "' ,'" +
-                                            sqlDate + "' ,\"" +
-                                            Brief + "\" ," +
-                                            Popularity + " ,\"" +
-                                            Title +
-                                            "\");";
+                "data_modified ," +
+                "stream_words ," +
+                "popularity ," +
+                "Title" +
+                ") " +
+                "values('" +
+                Link + "' ,'" +
+                sqlDate + "' ,'" +
+                Brief + "' ," +
+                Popularity + " ,'" +
+                Title +
+                "');";
+        // System.out.println(Query);
         try{
             LastLinkId = db.insertdb(Query);
         }catch(SQLException throwables){
@@ -304,42 +308,50 @@ public class Indexer {
     }
 
     public void FillWord_Document(){
+        ArrayList<String> keys=new ArrayList<>();
+        ArrayList<Integer> IDs=new ArrayList<>();
         for (String key : DocumentMap.keySet()){
             key.replace('\"', ' ');
             int ID = 0;
             float tf = (float)(DocumentMap.get(key).Freg+DocumentMap.get(key).Extra)/DocumentCount;
             String Query = "insert into word_document(word_name ," +
-                                                "document_hyper_link_id ," +
-                                                "tf ," +
-                                                "score" +
-                                                ") " +
-                                                "values(\"" +
-                                                key + "\" ," +
-                                                LastLinkId + " ," +
-                                                tf+"," +
-                                                0 +
-                                                ");";
+                    "document_hyper_link_id ," +
+                    "tf ," +
+                    "score" +
+                    ") " +
+                    "values(\"" +
+                    key + "\" ," +
+                    LastLinkId + " ," +
+                    tf+"," +
+                    0 +
+                    ");";
             try{
                 ID = db.insertdb(Query);
             }catch(SQLException throwables){
                 throwables.printStackTrace();
             }
 
-            for(int index : DocumentMap.get(key).Index){
-                Query = "insert into word_index(word_document_id ," +
-                                                "word_position" +
-                                                ") " +
-                                                "values(" +
-                                                ID + " ," +
-                                                index +
-                                                ");";
-                try{
-                    db.insertdb(Query);
-                }catch(SQLException throwables){
-                    throwables.printStackTrace();
-                }
-            }
+            keys.add(key);
+            IDs.add(ID);
 
+        }
+        String indexQuery= "insert into word_index(word_document_id ," +
+                "word_position" +
+                ") " +
+                "values";
+        for(int i=0;i<keys.size();i++) {
+            for (int index : DocumentMap.get(keys.get(i)).Index) {
+                indexQuery += "(" + IDs.get(i) + " ," + index + "),";
+            }
+        }
+        if (indexQuery.endsWith(",")) {
+            indexQuery = indexQuery.substring(0, indexQuery.length() - 1);
+        }
+        try {
+            // System.out.println(indexQuery);
+            db.insertdb(indexQuery);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 
@@ -349,17 +361,19 @@ public class Indexer {
             String caption = i.Catption;
             String stemmed = i.Stemmed;
 
-            caption.replace('\"',' ');
-            stemmed.replace('\"', ' ');
-                String Query = "insert into image(image_url ," +
-                                                        "caption," +
-                                                        "stemmed" +
-                                                        ") " +
-                                                        "values('" +
-                                                        src + "' ,\"" +
-                                                        caption + "\" ,\"" +
-                                                        stemmed +
-                                                        "\");";
+            caption=caption.replace('\"',' ');
+            stemmed=stemmed.replace('\"',' ');
+            caption=caption.replace("'"," ");
+            stemmed=stemmed.replace("'","");
+            String Query = "insert into image(image_url ," +
+                    "caption," +
+                    "stemmed" +
+                    ") " +
+                    "values('" +
+                    src + "' ,'" +
+                    caption + "' ,'" +
+                    stemmed +
+                    "');";
             try{
                 db.insertdb(Query);
             }catch(SQLException throwables){

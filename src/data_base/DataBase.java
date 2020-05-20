@@ -10,13 +10,12 @@ public class DataBase {
     static final String DB_URL = "jdbc:mysql://localhost:3306/"+DATA_BASE_NAME+"?createDatabaseIfNotExist=true";
     //  Database credentials
     static final String USER = "root";
-    static final String PASS = "password";
+    static final String PASS = "12";
 
 
     public static final String documentTableName="document";
     public static final String documentWordTableName="word_document";
     public static final String imageTableName="image";
-    public static final String imageWordTableName="word_image";
     public static final String indexTableName="word_index";
     public static final String trendsTableName="trends";
     public static final String suggestionTableName="suggestion";
@@ -52,13 +51,6 @@ public class DataBase {
             "stemmed Text,"+
             "PRIMARY KEY (id));";
 
-    static final String imageWordTableCreate = "CREATE TABLE IF NOT EXISTS  "+imageWordTableName+
-            "(word_name VARCHAR(255) not NULL, " +
-            " image_url  VARCHAR(255) , "+
-            "tf float ,"+
-            "score float ,"+
-            "FOREIGN KEY (image_url) REFERENCES image(image_url),"+
-            "PRIMARY KEY (word_name,image_url));";
 
 
 

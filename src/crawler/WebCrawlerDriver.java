@@ -43,7 +43,7 @@ public class WebCrawlerDriver {
 	public static void main(String[] args) throws ClassNotFoundException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-			dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/search_engine?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","root","password");
+			dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/search_engine?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","root","12");
 			readSeeds("seed.txt");
 			initCrawlingSession();
 			readThreadsCount();
