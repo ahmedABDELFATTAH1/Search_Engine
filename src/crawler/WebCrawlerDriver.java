@@ -5,7 +5,13 @@
 package crawler;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,23 +33,31 @@ public class WebCrawlerDriver {
 
     static private int threadsCount; 
     static private LinkedList<String> pendingLinks = new LinkedList<String>(); 
-    static private Set<String> visitedLinks = new HashSet<String>();
+    static private Map<String, Integer> visitedLinks = new HashMap<String, Integer>();
     static private Map<String, HashSet<String>> forbiddenLinks = new HashMap<String, HashSet<String>>();
     static private Map<String, Integer> hostsPopularity = new HashMap<String, Integer>();
     static private Object pendingLinksLock = new Object();  
     static private Object visitedLinksLock = new Object();  
     static private Object forbiddenLinksLock = new Object();
+    static private Map<String, Object> forbiddenLinksLocksMap = new HashMap<String, Object>();
     static private Object hostsPopularityLock = new Object();
     static private Connection dbConnection ;
-    final static private boolean LOGGER = false;
+	static Integer pagesCount = 0;
+	static boolean DEBUG = true;
     /**
 	 * @param args
      * @throws ClassNotFoundException 
+     * @throws IOException 
 	 */
-	public static void main(String[] args) throws ClassNotFoundException {
+	public static void main(String[] args) throws ClassNotFoundException, IOException {
         try {
+        	String dbUser = "root";
+        	String dbPassword ="";
+        	String dbName = "mydatabase";
+        	String dbPort = "3306";
+        	String dbHost = "localhost";
             Class.forName("com.mysql.cj.jdbc.Driver");
-			dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/search_engine?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC","root","12");
+			dbConnection = DriverManager.getConnection("jdbc:mysql://"+ dbHost +":"+ dbPort +"/" + dbName + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC",dbUser,dbPassword);
 			readSeeds("seed.txt");
 			initCrawlingSession();
 			readThreadsCount();
@@ -52,20 +66,30 @@ public class WebCrawlerDriver {
 																		pendingLinks,	 pendingLinksLock,
 																		visitedLinks,	 visitedLinksLock,
 																		forbiddenLinks,  forbiddenLinksLock,
-																		hostsPopularity, hostsPopularityLock));	
+																		hostsPopularity, hostsPopularityLock,
+																		pagesCount,DEBUG,forbiddenLinksLocksMap
+																		));	
 				crawlerThread.setName("#"+i);	
 				crawlerThread.start();
 				}
 
 		} 
         catch (SQLException e) {
+        	if(DEBUG)
 			e.printStackTrace();
 		}
 	}
+	static private String hashMaker(String hyperlinksHash) {
+		if (hyperlinksHash.length() <= 30)
+			return hyperlinksHash;
+		int startIndex =  hyperlinksHash.length() / 2;
+		for (int i=startIndex;i<startIndex+15;++i) {
+			hyperlinksHash.charAt(i);
+		}
+		//hyperlinksHash.substring(0,piHasher);
+		return "";
+	}
 	static private void initCrawlingSession() throws SQLException {
-		// Load pending links
-		// Load visited links
-		// Load forbidden links
 		Statement statment = dbConnection.createStatement();
         ResultSet  resultSet;
         
@@ -73,30 +97,35 @@ public class WebCrawlerDriver {
         while (resultSet.next())
         	hostsPopularity.put(resultSet.getString("host_name"), resultSet.getInt("host_ref_times"));
         
-        resultSet = statment.executeQuery("select url from crawler_urls where is_crawled = 1 ");
-        while (resultSet.next())
-        	visitedLinks.add(resultSet.getString("url"));
-        //resultSet = statment.executeQuery("select url_id , url from crawler_urls where is_crawled = 0 or revisit_priporty = 1 ;");
+        resultSet = statment.executeQuery("select url,check_sum from crawler_urls where is_crawled = 1 ");
+        while (resultSet.next()) {
+        	visitedLinks.put(resultSet.getString("url"),resultSet.getInt("check_sum"));
+        	pagesCount ++ ;
+        }
         resultSet = statment.executeQuery("select url_id , url from crawler_urls where is_crawled = 0 ;");
-        while (resultSet.next())
+        while (resultSet.next()) {
         	pendingLinks.add(resultSet.getString("url"));
-        
-
+        	pagesCount ++ ;
+        }
+        if (pagesCount >= WebCrawler.MAX_DOCS_COUNT)
+        	pagesCount = 0;
         resultSet = statment.executeQuery("select url from forbidden_urls ;");
         while (resultSet.next()) {
         	URL url;
 			try {
 				url = new URL(resultSet.getString("url"));
 				String host = url.getHost();
-	        	if (!(forbiddenLinks.containsKey(host)))
+	        	if (!(forbiddenLinks.containsKey(host))) {
 					forbiddenLinks.put(host, new HashSet<String>());
+					forbiddenLinksLocksMap.put(host,new Object());
+	        	}
 	        	forbiddenLinks.get(host).add(resultSet.getString("url"));
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(DEBUG)
+					e.printStackTrace();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(DEBUG)
+					e.printStackTrace();
 			}
 		}
 	}
@@ -132,17 +161,19 @@ public class WebCrawlerDriver {
                     Statement stmt = dbConnection.createStatement();
 					stmt.executeUpdate(insertSeedQuery);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-		            System.out.println("Seed is already exist for this url : " + seedUrl );                
+					if(DEBUG)
+						System.out.println("Seed is already exist for this url : " + seedUrl );                
 				}
             }
             bufferedReader.close();         
     	}
         catch(FileNotFoundException ex) {
-            System.out.println("Unable to open file '" + seedUrlsPath + "'");                
+    		if(DEBUG)
+    			System.out.println("Unable to open file '" + seedUrlsPath + "'");                
         }
         catch(IOException ex) {
-            System.out.println("Error reading file '" + seedUrlsPath + "'");                  
+        	if(DEBUG)	
+        		System.out.println("Error reading file '" + seedUrlsPath + "'");                  
         }
 	}
 }
