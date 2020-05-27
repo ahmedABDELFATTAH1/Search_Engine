@@ -92,7 +92,7 @@ public class Indexer {
             FillWord_Document();
             FillImageTable();
 
-             PrintMap(DocumentMap);
+          //   PrintMap(DocumentMap);
 
             // Clear every thing to start again
             DocumentCount = 0;
@@ -140,8 +140,8 @@ public class Indexer {
                 String ImageStemmed = S.stem(element.attr("alt"));
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
-                      System.out.println(element.attr("src"));
-                     System.out.println(element.attr("alt"));
+                     // System.out.println(element.attr("src"));
+                    // System.out.println(element.attr("alt"));
                 }
                 continue;
             }
@@ -150,7 +150,7 @@ public class Indexer {
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed, GetScore(element.nodeName()));
-                 System.out.println(element.nodeName() + " => " + element.ownText());
+                 //System.out.println(element.nodeName() + " => " + element.ownText());
 
                 // Brief
                 if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
@@ -235,7 +235,7 @@ public class Indexer {
         Images.add(image);
     }
 
-    private void PrintMap(HashMap<String, IndexAndFreq> DocumentMap){
+   /* private void PrintMap(HashMap<String, IndexAndFreq> DocumentMap){
         System.out.println("=============== " + Title + " =================");
 
         for (String key : DocumentMap.keySet()){
@@ -248,7 +248,7 @@ public class Indexer {
         System.out.println("The total words in this document is: "+ DocumentCount);
         System.out.println("The Title of this document is : "+ Title);
     }
-
+*/
     private void GetDocumentInformation(String url) throws MalformedURLException, SQLException {
         Title = document.title();
         if(Brief==null)
@@ -337,7 +337,7 @@ public class Indexer {
             try{
                 ID = db.insertdb(Query);
             }catch(SQLException throwables){
-                throwables.printStackTrace();
+              System.out.println("bad request ya waad");
             }
 
             keys.add(key);
@@ -360,7 +360,7 @@ public class Indexer {
             // System.out.println(indexQuery);
             db.insertdb(indexQuery);
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            System.out.println("bad request ya waad");
         }
     }
 
@@ -385,7 +385,8 @@ public class Indexer {
             try{
                 db.insertdb(Query);
             }catch(SQLException throwables){
-                throwables.printStackTrace();
+                System.out.println("duplicate image bad");
+               // throwables.printStackTrace();
             }
         }
     }
