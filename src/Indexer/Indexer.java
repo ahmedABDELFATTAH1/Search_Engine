@@ -95,7 +95,7 @@ public class Indexer {
             FillWord_Document();
             FillImageTable();
 
-            // PrintMap(DocumentMap);
+             PrintMap(DocumentMap);
 
             // Clear every thing to start again
             DocumentCount = 0;
@@ -134,8 +134,8 @@ public class Indexer {
                 String ImageStemmed = S.stem(element.attr("alt"));
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
-                    //  System.out.println(element.attr("src"));
-                    // System.out.println(element.attr("alt"));
+                      System.out.println(element.attr("src"));
+                     System.out.println(element.attr("alt"));
                 }
                 continue;
             }
@@ -144,7 +144,7 @@ public class Indexer {
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed, GetScore(element.nodeName()));
-                // System.out.println(element.nodeName() + " => " + element.ownText());
+                 System.out.println(element.nodeName() + " => " + element.ownText());
 
                 // Brief
                 if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
@@ -258,7 +258,10 @@ public class Indexer {
         }
 
         URL U = new URL(url);
-        System.out.println(U.getHost());
+        String UString = U.getHost();
+        System.out.println(UString);
+        System.out.println(Title);
+        System.out.println(url);
         System.out.println("===========================================================");
         System.out.println("===========================================================");
         String Query = "Select host_ref_times from hosts_popularity where host_name = '" + U.getHost() + "';";
@@ -273,7 +276,7 @@ public class Indexer {
     }
 
     private Boolean IsImage(String s){
-        Pattern p = Pattern.compile("http(s)?:\\/\\/.*");
+        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(jpg|png|jpeg)");
         Matcher m = p.matcher(s);
         if (m.find())
             return true;
@@ -284,8 +287,6 @@ public class Indexer {
     public void FillDocument() {
         Title=Title.replace('\"',' ');
         Brief=Brief.replace('\"',' ');
-        Title=Title.replace("'"," ");
-        Brief=Brief.replace("'","");
         String Query = "insert into document(hyper_link ," +
                 "data_modified ," +
                 "stream_words ," +
@@ -294,11 +295,11 @@ public class Indexer {
                 ") " +
                 "values('" +
                 Link + "' ,'" +
-                sqlDate + "' ,'" +
-                Brief + "' ," +
-                Popularity + " ,'" +
+                sqlDate + "' ,\"" +
+                Brief + "\" ," +
+                Popularity + " ,\"" +
                 Title +
-                "');";
+                "\");";
         // System.out.println(Query);
         try{
             LastLinkId = db.insertdb(Query);
@@ -363,15 +364,14 @@ public class Indexer {
 
             caption=caption.replace('\"',' ');
             stemmed=stemmed.replace('\"',' ');
-            caption=caption.replace("'"," ");
             stemmed=stemmed.replace("'","");
             String Query = "insert into image(image_url ," +
                     "caption," +
                     "stemmed" +
                     ") " +
                     "values('" +
-                    src + "' ,'" +
-                    caption + "' ,'" +
+                    src + "' ,\"" +
+                    caption + "\" ,'" +
                     stemmed +
                     "');";
             try{
