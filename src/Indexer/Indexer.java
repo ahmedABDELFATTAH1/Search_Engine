@@ -390,6 +390,11 @@ public class Indexer {
     }
 
     private void FillImageTable(){
+        String Query = "insert into image(image_url ," +
+                "caption," +
+                "stemmed" +
+                ") " +
+                "values";
         for (ImageData i : Images){
             String src = i.Src;
             String caption = i.Catption;
@@ -398,20 +403,21 @@ public class Indexer {
             caption=caption.replace('\"',' ');
             stemmed=stemmed.replace('\"',' ');
             stemmed=stemmed.replace("'","");
-            String Query = "insert into image(image_url ," +
-                    "caption," +
-                    "stemmed" +
-                    ") " +
-                    "values('" +
+            Query += "('" +
                     src + "' ,\"" +
                     caption + "\" ,'" +
                     stemmed +
-                    "');";
-            try{
-                db.insertdb(Query);
-            }catch(SQLException throwables){
-                throwables.printStackTrace();
-            }
+                    "'),";
+        }
+
+        if (Query.endsWith(","))
+            Query = Query.substring(0, Query.length() - 1);
+
+
+        try{
+            db.insertdb(Query);
+        }catch(SQLException throwables){
+            throwables.printStackTrace();
         }
     }
 
