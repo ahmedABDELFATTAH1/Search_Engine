@@ -245,6 +245,9 @@ public class Indexer {
 
     private void GetDocumentInformation(String url) throws MalformedURLException, SQLException {
         Title = document.title();
+        if(Brief == null)
+             Brief = Title;
+
         FillDocumentMap(S.stem(Title),GetScore("title"));
         Link = url;
 
@@ -259,12 +262,19 @@ public class Indexer {
 
         URL U = new URL(url);
         String UString = U.getHost();
+
+        if(UString.startsWith("www"))
+            UString = UString.substring(4);
+
+
         System.out.println(UString);
         System.out.println(Title);
         System.out.println(url);
         System.out.println("===========================================================");
         System.out.println("===========================================================");
-        String Query = "Select host_ref_times from hosts_popularity where host_name = '" + U.getHost() + "';";
+
+
+        String Query = "Select host_ref_times from hosts_popularity where host_name = '" + UString + "';";
         ResultSet r = db.selectQuerydb(Query);
         if(r.next() != false){
             int temp= r.getInt(1);
@@ -276,7 +286,7 @@ public class Indexer {
     }
 
     private Boolean IsImage(String s){
-        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(jpg|png|jpeg)");
+        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(png|jpg|jpeg)");
         Matcher m = p.matcher(s);
         if (m.find())
             return true;
