@@ -2,6 +2,7 @@ package Indexer;
 
 import data_base.DataBase;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class InsertInDataBase {
 
 
         HashMap<String,Integer> hosts = new HashMap<String , Integer>();
-        hosts.put("www.fatakat.com",1);
+        hosts.put("fatakat.com",1);
 //        hosts.put("www.google.com",1);
 //        hosts.put("en.wikipedia.org",2);
 
@@ -65,8 +66,9 @@ public class InsertInDataBase {
 
     }
 
-    public static void main(String[] args) throws SQLException {
-      //  InsertInDataBase I = new InsertInDataBase();
+    public static void main(String[] args) throws SQLException, IOException {
+        //InsertInDataBase I = new InsertInDataBase();
+
         Indexer indexer = new Indexer();
     }
 }

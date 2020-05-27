@@ -1,6 +1,18 @@
 package Indexer;
 
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import URLInformation.*;
 import Stemmer.Stemmer;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import data_base.DataBase;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -19,6 +31,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+
 
 public class Indexer {
     private Stemmer S;
@@ -47,15 +61,18 @@ public class Indexer {
     int LastLinkId;
     int TotalFreq;
     float Popularity;
+    URLInformation urlinformation;
+    String CountryCode;
 
     // Image
     ArrayList<ImageData> Images;
 
 
-    public Indexer() throws SQLException {
+    public Indexer() throws SQLException, IOException {
         S = new Stemmer();
         DocumentMap = new HashMap<>();
         this.Images = new ArrayList<ImageData>();
+        this.urlinformation = new URLInformation();
 
         DocumentCount = 0;
         Loop = 0;
@@ -129,6 +146,10 @@ public class Indexer {
             e.printStackTrace();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        } catch (GeoIp2Exception e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         boolean Flag = true;
@@ -248,11 +269,21 @@ public class Indexer {
         System.out.println("The total words in this document is: "+ DocumentCount);
         System.out.println("The Title of this document is : "+ Title);
     }
+
 */
-    private void GetDocumentInformation(String url) throws MalformedURLException, SQLException {
+
+
+    private void GetDocumentInformation(String url) throws IOException, SQLException, GeoIp2Exception {
+        // Title and Brief
         Title = document.title();
-        if(Brief==null)
-            Brief=Title;
+        if(Brief == null)
+             Brief = Title;
+
+
+        // Country
+        CountryCode = this.urlinformation.Country(url).getIsoCode();
+
+        // Date
         FillDocumentMap(S.stem(Title),GetScore("title"));
         Link = url;
 
@@ -265,14 +296,16 @@ public class Indexer {
             sqlDate = new java.sql.Date(new Date(0).getTime());
         }
 
+
+        // Popularity
         URL U = new URL(url);
         String UString = U.getHost();
-        System.out.println(UString);
-        System.out.println(Title);
-        System.out.println(url);
-        System.out.println("===========================================================");
-        System.out.println("===========================================================");
-        String Query = "Select host_ref_times from hosts_popularity where host_name = '" + U.getHost() + "';";
+
+        if(UString.startsWith("www"))
+            UString = UString.substring(4);
+
+
+        String Query = "Select host_ref_times from hosts_popularity where host_name = '" + UString + "';";
         ResultSet r = db.selectQuerydb(Query);
         if(r.next() != false){
             int temp= r.getInt(1);
@@ -281,10 +314,19 @@ public class Indexer {
             Popularity = 0;
         }
 
+
+        System.out.println(UString);
+        System.out.println(CountryCode);
+        System.out.println(Title);
+        System.out.println(url);
+        System.out.println("===========================================================");
+        System.out.println("===========================================================");
+
+
     }
 
     private Boolean IsImage(String s){
-        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(jpg|png|jpeg)");
+        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(png|jpg|jpeg)");
         Matcher m = p.matcher(s);
         if (m.find())
             return true;
@@ -296,6 +338,7 @@ public class Indexer {
         Title=Title.replace('\"',' ');
         Brief=Brief.replace('\"',' ');
         String Query = "insert into document(hyper_link ," +
+                "CountryCode ," +
                 "data_modified ," +
                 "stream_words ," +
                 "popularity ," +
@@ -303,6 +346,7 @@ public class Indexer {
                 ") " +
                 "values('" +
                 Link + "' ,'" +
+                CountryCode + "' ,'" +
                 sqlDate + "' ,\"" +
                 Brief + "\" ," +
                 Popularity + " ,\"" +
@@ -365,6 +409,11 @@ public class Indexer {
     }
 
     private void FillImageTable(){
+        String Query = "insert into image(image_url ," +
+                "caption," +
+                "stemmed" +
+                ") " +
+                "values";
         for (ImageData i : Images){
             String src = i.Src;
             String caption = i.Catption;
@@ -373,21 +422,22 @@ public class Indexer {
             caption=caption.replace('\"',' ');
             stemmed=stemmed.replace('\"',' ');
             stemmed=stemmed.replace("'","");
-            String Query = "insert into image(image_url ," +
-                    "caption," +
-                    "stemmed" +
-                    ") " +
-                    "values('" +
+            Query += "('" +
                     src + "' ,\"" +
                     caption + "\" ,'" +
                     stemmed +
-                    "');";
-            try{
-                db.insertdb(Query);
-            }catch(SQLException throwables){
-                System.out.println("duplicate image bad");
-               // throwables.printStackTrace();
-            }
+                    "'),";
+        }
+
+        if (Query.endsWith(","))
+            Query = Query.substring(0, Query.length() - 1);
+
+
+        try{
+            db.insertdb(Query);
+        }catch(SQLException throwables){
+            throwables.printStackTrace();
+
         }
     }
 

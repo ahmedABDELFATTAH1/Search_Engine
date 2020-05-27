@@ -12,5 +12,6 @@
     <orderEntry type="library" name="lucene-snowball-3.0.2" level="project" />
     <orderEntry type="library" name="common-lang3" level="project" />
     <orderEntry type="library" name="jsoup-1.13.1" level="project" />
+    <orderEntry type="library" name="selenium-server-standalone-3.141.59" level="project" />
   </component>
 </module>
