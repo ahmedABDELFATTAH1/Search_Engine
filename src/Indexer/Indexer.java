@@ -1,17 +1,8 @@
 package Indexer;
 
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import URLInformation.*;
 import Stemmer.Stemmer;
+import URLInformation.URLInformation;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import data_base.DataBase;
 import org.apache.commons.lang3.StringUtils;
@@ -161,8 +152,8 @@ public class Indexer {
                 String ImageStemmed = S.stem(element.attr("alt"));
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
-                     // System.out.println(element.attr("src"));
-                    // System.out.println(element.attr("alt"));
+                      System.out.println(element.attr("src"));
+                     System.out.println(element.attr("alt"));
                 }
                 continue;
             }
@@ -409,17 +400,22 @@ public class Indexer {
     }
 
     private void FillImageTable(){
+
+        if(Images.size()==0)
+            return;
         String Query = "insert into image(image_url ," +
                 "caption," +
                 "stemmed" +
                 ") " +
                 "values";
         for (ImageData i : Images){
+
             String src = i.Src;
             String caption = i.Catption;
             String stemmed = i.Stemmed;
 
             caption=caption.replace('\"',' ');
+            caption=caption.replace("'","");
             stemmed=stemmed.replace('\"',' ');
             stemmed=stemmed.replace("'","");
             Query += "('" +
@@ -433,12 +429,12 @@ public class Indexer {
             Query = Query.substring(0, Query.length() - 1);
 
 
-        try{
+        try {
             db.insertdb(Query);
-        }catch(SQLException throwables){
-            throwables.printStackTrace();
-
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
     }
 
 

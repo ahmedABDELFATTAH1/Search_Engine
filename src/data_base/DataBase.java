@@ -50,7 +50,7 @@ public class DataBase {
             "image_url varchar(512) ,"+
             "caption Text,"+
             "stemmed Text,"+
-            "unique(image_url,caption),"+
+            "unique(image_url),"+
             "PRIMARY KEY (id));";
 
 
