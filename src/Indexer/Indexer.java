@@ -1,14 +1,5 @@
 package Indexer;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 import Stemmer.Stemmer;
 import data_base.DataBase;
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +8,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.io.File;  // Import the File class
-import java.io.FileNotFoundException;  // Import this class to handle errors
-import java.util.Scanner; // Import the Scanner class to read text files
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,8 +72,9 @@ public class Indexer {
     }
 
     private void GetLinksFromDataBase() throws SQLException {
-        String Query = "Select url from crawler_urls";
+        String Query = "Select url from crawler_urls where done = 0";
         this.links = db.selectQuerydb(Query);
+
 
         Query = "Select Sum(host_ref_times) from hosts_popularity";
         ResultSet r = db.selectQuerydb(Query);
@@ -89,8 +85,9 @@ public class Indexer {
     // iterate the array list of files and pass it to indexer to work on it
     private void Start() throws SQLException {
         while (this.links.next()){
-            Indexing(this.links.getString("url"));
+            String link=this.links.getString("url");
 
+            Indexing(link);
             FillDocument();
             FillWord_Document();
             FillImageTable();
@@ -100,9 +97,18 @@ public class Indexer {
             // Clear every thing to start again
             DocumentCount = 0;
             DocumentMap.clear();
-
+            setDone(link);
             // increment the loop
             Loop++;
+        }
+    }
+
+    private void setDone(String link) {
+        String query="update crawler_urls set done=1 where url ='"+link+"';";
+        try {
+            db.updatedb(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -245,6 +251,8 @@ public class Indexer {
 
     private void GetDocumentInformation(String url) throws MalformedURLException, SQLException {
         Title = document.title();
+        if(Brief==null)
+            Brief=Title;
         FillDocumentMap(S.stem(Title),GetScore("title"));
         Link = url;
 

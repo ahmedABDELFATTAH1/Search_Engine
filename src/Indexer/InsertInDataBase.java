@@ -66,7 +66,7 @@ public class InsertInDataBase {
     }
 
     public static void main(String[] args) throws SQLException {
-        InsertInDataBase I = new InsertInDataBase();
+      //  InsertInDataBase I = new InsertInDataBase();
         Indexer indexer = new Indexer();
     }
 }

@@ -4,7 +4,8 @@ CREATE TABLE `crawler_urls` (
   `url` varchar(512) unique COLLATE utf16_unicode_ci NOT NULL,
   `is_crawled` tinyint(1) NOT NULL DEFAULT 0,
   `revisit_priporty` tinyint(1) NOT NULL DEFAULT 0,
-  `hyperlinks_hash` text COLLATE utf16_unicode_ci DEFAULT NULL,
+  `check_sum` int(11) COLLATE utf16_unicode_ci DEFAULT 0,
+  `done` TINYINT NOT NULL DEFAULT 0,
   `created_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `modified_timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_unicode_ci;

@@ -3,30 +3,14 @@
  */
 
 package crawler;
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.Iterator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Scanner; 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.jsoup.nodes.Element;
-import com.mysql.cj.protocol.Resultset;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.*;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class WebCrawlerDriver {
@@ -52,8 +36,8 @@ public class WebCrawlerDriver {
 	public static void main(String[] args) throws ClassNotFoundException, IOException {
         try {
         	String dbUser = "root";
-        	String dbPassword ="";
-        	String dbName = "mydatabase";
+        	String dbPassword ="12";
+        	String dbName = "search_engine";
         	String dbPort = "3306";
         	String dbHost = "localhost";
             Class.forName("com.mysql.cj.jdbc.Driver");
