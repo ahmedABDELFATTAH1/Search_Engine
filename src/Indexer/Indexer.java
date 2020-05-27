@@ -97,7 +97,7 @@ public class Indexer {
 
             Indexing(link);
             FillDocument();
-            FillWord_Document();
+//            FillWord_Document();
             FillImageTable();
 
           //   PrintMap(DocumentMap);
@@ -317,7 +317,8 @@ public class Indexer {
     }
 
     private Boolean IsImage(String s){
-        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(png|jpg|jpeg)");
+        Pattern p = Pattern.compile(".*\\.(png|jpg|jpeg)");
+//        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(png|jpg|jpeg)");
         Matcher m = p.matcher(s);
         if (m.find())
             return true;
@@ -346,12 +347,16 @@ public class Indexer {
         // System.out.println(Query);
         try{
             LastLinkId = db.insertdb(Query);
+            FillWord_Document();
         }catch(SQLException throwables){
             throwables.printStackTrace();
         }
     }
 
     public void FillWord_Document(){
+
+        if(DocumentMap.size() == 0)
+            return;
         ArrayList<String> keys=new ArrayList<>();
         ArrayList<Integer> IDs=new ArrayList<>();
         for (String key : DocumentMap.keySet()){
@@ -371,13 +376,14 @@ public class Indexer {
                     ");";
             try{
                 ID = db.insertdb(Query);
+                keys.add(key);
+                IDs.add(ID);
             }catch(SQLException throwables){
               System.out.println("bad request ya waad");
             }
 
-            keys.add(key);
-            IDs.add(ID);
-
+            if(keys.size() == 0)
+                return ;
         }
         String indexQuery= "insert into word_index(word_document_id ," +
                 "word_position" +
@@ -401,8 +407,9 @@ public class Indexer {
 
     private void FillImageTable(){
 
-        if(Images.size()==0)
-            return;
+        if(Images.size() == 0)
+            return ;
+
         String Query = "insert into image(image_url ," +
                 "caption," +
                 "stemmed" +
@@ -429,7 +436,9 @@ public class Indexer {
             Query = Query.substring(0, Query.length() - 1);
 
 
-        try {
+        System.out.println(Query);
+        try{
+
             db.insertdb(Query);
         } catch (SQLException e) {
             e.printStackTrace();
