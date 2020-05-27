@@ -47,9 +47,10 @@ public class DataBase {
 
     static final String imageTableCreate = "CREATE TABLE IF NOT EXISTS "+imageTableName+
             "(id int auto_increment, " +
-            "image_url varchar(512) unique,"+
+            "image_url varchar(512) ,"+
             "caption Text,"+
             "stemmed Text,"+
+            "unique(image_url,caption),"+
             "PRIMARY KEY (id));";
 
 

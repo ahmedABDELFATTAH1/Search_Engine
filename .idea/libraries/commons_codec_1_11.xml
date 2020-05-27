@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="commons-codec-1.11">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/MixMind/commons-codec-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/maxmind-db-1.3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/jackson-databind-2.10.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/jackson-core-2.10.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/jackson-annotations-2.10.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/httpcore-4.4.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/httpclient-4.5.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/geoip2-2.13.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MixMind/commons-logging-1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/MixMind/geoip2-2.13.1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/MixMind/geoip2-2.13.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
