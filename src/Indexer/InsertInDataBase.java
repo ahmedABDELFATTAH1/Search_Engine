@@ -36,7 +36,7 @@ public class InsertInDataBase {
         db.deletedb(Query);
 
         ArrayList<String> links= new ArrayList<>();
-        links.add("https://edition.cnn.com/business/tech/");
+        links.add("https://www.geeksforgeeks.org/");
 //        links.add("https://www.google.com");
 //        links.add("https://en.wikipedia.org/wiki/AND_gate");
 //        links.add("https://en.wikipedia.org/wiki/OR_gate");
@@ -47,7 +47,7 @@ public class InsertInDataBase {
 
 
         HashMap<String,Integer> hosts = new HashMap<String , Integer>();
-        hosts.put("edition.cnn.com",1);
+        hosts.put("geeksforgeeks.org",1);
 //        hosts.put("www.google.com",1);
 //        hosts.put("en.wikipedia.org",2);
 
