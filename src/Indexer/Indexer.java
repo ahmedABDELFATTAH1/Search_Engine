@@ -52,6 +52,7 @@ public class Indexer {
     float Popularity;
     URLInformation urlinformation;
     String CountryCode;
+    String CurrentHost;
 
     // Image
     ArrayList<ImageData> Images;
@@ -288,6 +289,7 @@ public class Indexer {
         // Popularity
         URL U = new URL(url);
         String UString = U.getHost();
+        CurrentHost = UString;
 
         if(UString.startsWith("www"))
             UString = UString.substring(4);
@@ -421,6 +423,8 @@ public class Indexer {
             {
                 src="https:"+src;
             }
+            if(src.startsWith("/"))
+                src = "https://"+CurrentHost+src;
             if(!(src.startsWith("https")&&src.startsWith("http")))
                 continue;
             caption=caption.replace('\"',' ');
@@ -433,7 +437,6 @@ public class Indexer {
                     stemmed +
                     "'),";
         }
-
         if (Query.endsWith(","))
             Query = Query.substring(0, Query.length() - 1);
 

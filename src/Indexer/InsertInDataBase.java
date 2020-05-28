@@ -36,7 +36,7 @@ public class InsertInDataBase {
         db.deletedb(Query);
 
         ArrayList<String> links= new ArrayList<>();
-        links.add("https://wuzzuf.net/a/Internships-in-Egypt?filter=Engineering%20-%20Telecom%2FTechnology&page=1");
+//        links.add("https://wuzzuf.net/a/Internships-in-Egypt?filter=Engineering%20-%20Telecom%2FTechnology&page=1");
 //        links.add("https://www.google.com");
 //        links.add("https://en.wikipedia.org/wiki/AND_gate");
 //        links.add("https://en.wikipedia.org/wiki/OR_gate");
@@ -47,7 +47,7 @@ public class InsertInDataBase {
 
 
         HashMap<String,Integer> hosts = new HashMap<String , Integer>();
-        hosts.put("wuzzuf.net",1);
+//        hosts.put("wuzzuf.net",1);
 //        hosts.put("www.google.com",1);
 //        hosts.put("en.wikipedia.org",2);
 
@@ -67,7 +67,7 @@ public class InsertInDataBase {
     }
 
     public static void main(String[] args) throws SQLException, IOException {
-//        InsertInDataBase I = new InsertInDataBase();
+        InsertInDataBase I = new InsertInDataBase();
         Indexer indexer = new Indexer();
     }
 }
