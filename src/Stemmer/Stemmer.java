@@ -188,7 +188,7 @@ public class Stemmer {
 
 
     public static void main(String[] args){
-        String test = "js";
+        String test = "test for stemmer";
         Stemmer S = new Stemmer();
         System.out.print(S.stem(test));
     }

@@ -428,7 +428,7 @@ public class Indexer {
             if(!(src.startsWith("https")&&src.startsWith("http")))
                 continue;
             caption=caption.replace('\"',' ');
-            caption=caption.replace("'","");
+            caption = caption.replaceAll("(\\r|\\n|\\t)", "");
             stemmed=stemmed.replace('\"',' ');
             stemmed=stemmed.replace("'","");
             Query += "('" +
