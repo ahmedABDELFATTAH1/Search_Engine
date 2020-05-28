@@ -145,9 +145,6 @@ public class Indexer {
                 String ImageStemmed = S.stem(element.attr("alt"));
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
-//                    String src = element.attr("src");
-//                    if(!src.startsWith("http"))
-//                        src = "https:"+src;
                     System.out.println(element.attr("src"));
                     System.out.println(element.attr("alt"));
                 }
@@ -311,7 +308,7 @@ public class Indexer {
 
     private Boolean IsImage(String s){
         Pattern p = Pattern.compile(".*\\.(png|jpg|jpeg)");
-//        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(png|jpg|jpeg)");
+//        Pattern p = Pattern.compile("(http(s)?:\\/\\/)|(\\/\\/).*\\.(png|jpg|jpeg)");
         Matcher m = p.matcher(s);
         if (m.find())
             return true;
