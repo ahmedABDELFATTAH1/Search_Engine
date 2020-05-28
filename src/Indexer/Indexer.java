@@ -424,7 +424,12 @@ public class Indexer {
             String src = i.Src;
             String caption = i.Catption;
             String stemmed = i.Stemmed;
-
+            if(src.startsWith("//"))
+            {
+                src="https:"+src;
+            }
+            if(!(src.startsWith("https")&&src.startsWith("http")))
+                continue;
             caption=caption.replace('\"',' ');
             caption=caption.replace("'","");
             stemmed=stemmed.replace('\"',' ');
