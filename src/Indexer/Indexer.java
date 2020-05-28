@@ -95,7 +95,7 @@ public class Indexer {
             Indexing(link);
 
             FillDocument();
-            FillImageTable();
+
 
             //   PrintMap(DocumentMap);
 
@@ -347,8 +347,9 @@ public class Indexer {
         try{
             LastLinkId = db.insertdb(Query);
             FillWord_Document();
+            FillImageTable();
         }catch(SQLException throwables){
-            throwables.printStackTrace();
+            System.out.println("This hyper link is already exists");
         }
     }
 

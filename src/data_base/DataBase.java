@@ -25,7 +25,7 @@ public class DataBase {
 
     static final String documentTableCreate = "CREATE TABLE IF NOT EXISTS "+documentTableName+
             "(id int auto_increment, " +
-            "hyper_link VARCHAR(255) not NULL, " +
+            "hyper_link VARCHAR(255) not NULL unique, " +
             "CountryCode VARCHAR(255), " +
             "data_modified  DATE ,"+
             "stream_words TEXT ,"+
