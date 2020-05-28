@@ -17,13 +17,13 @@ public class InsertInDataBase {
         db.CreateDataBase();
 
         // Delete all rows in crawler and popularity
-        String Query = "delete from crawler_urls";
-        db.deletedb(Query);
+//        String Query = "delete from crawler_urls";
+//        db.deletedb(Query);
+//
+//        Query = "delete from hosts_popularity";
+//        db.deletedb(Query);
 
-        Query = "delete from hosts_popularity";
-        db.deletedb(Query);
-
-        Query = "delete from word_index";
+        String Query = "delete from word_index";
         db.deletedb(Query);
 
         Query = "delete from word_document";
@@ -67,7 +67,7 @@ public class InsertInDataBase {
     }
 
     public static void main(String[] args) throws SQLException, IOException {
-        InsertInDataBase I = new InsertInDataBase();
+//        InsertInDataBase I = new InsertInDataBase();
         Indexer indexer = new Indexer();
     }
 }

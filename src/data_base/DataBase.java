@@ -47,7 +47,7 @@ public class DataBase {
 
     static final String imageTableCreate = "CREATE TABLE IF NOT EXISTS "+imageTableName+
             "(id int auto_increment, " +
-            "image_url varchar(512),"+
+            "image_url Text ,"+
             "caption Text,"+
             "stemmed Text,"+
             "PRIMARY KEY (id));";
@@ -60,6 +60,7 @@ public class DataBase {
             "word_document_id int not null, "+
             "word_position INT NOT NULL,"+
             "FOREIGN KEY (word_document_id) REFERENCES word_document(id),"+
+            "unique(word_document_id,word_position),"+
             "PRIMARY KEY (id));";
 
 
@@ -145,5 +146,5 @@ public class DataBase {
             throwables.printStackTrace();
         }
     }
-    
+
 }

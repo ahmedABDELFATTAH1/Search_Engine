@@ -26,4 +26,6 @@ CREATE TABLE `hosts_popularity` (
   `modified_timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_unicode_ci;
 
+ALTER TABLE crawler_urls add done tinyint default 0;
+
 

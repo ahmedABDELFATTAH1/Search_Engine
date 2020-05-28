@@ -1,16 +1,8 @@
 package Indexer;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 
-import URLInformation.*;
 import Stemmer.Stemmer;
+import URLInformation.URLInformation;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import data_base.DataBase;
 import org.apache.commons.lang3.StringUtils;
@@ -19,11 +11,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.io.File;  // Import the File class
-import java.io.FileNotFoundException;  // Import this class to handle errors
-import java.util.Scanner; // Import the Scanner class to read text files
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,8 +34,6 @@ public class Indexer {
     private HashMap<String, IndexAndFreq> DocumentMap;
 
     private int DocumentCount;
-
-    private int Loop;
 
     // Data for Document
     private String Path;
@@ -70,7 +64,6 @@ public class Indexer {
         this.urlinformation = new URLInformation();
 
         DocumentCount = 0;
-        Loop = 0;
 
         ConnectDataBase();
         GetLinksFromDataBase();
@@ -84,8 +77,9 @@ public class Indexer {
     }
 
     private void GetLinksFromDataBase() throws SQLException {
-        String Query = "Select url from crawler_urls";
+        String Query = "Select url from crawler_urls where done = 0";
         this.links = db.selectQuerydb(Query);
+
 
         Query = "Select Sum(host_ref_times) from hosts_popularity";
         ResultSet r = db.selectQuerydb(Query);
@@ -96,20 +90,28 @@ public class Indexer {
     // iterate the array list of files and pass it to indexer to work on it
     private void Start() throws SQLException {
         while (this.links.next()){
-            Indexing(this.links.getString("url"));
+            String link=this.links.getString("url");
+            Indexing(link);
 
             FillDocument();
-//            FillWord_Document();
             FillImageTable();
 
-             PrintMap(DocumentMap);
+            //   PrintMap(DocumentMap);
 
             // Clear every thing to start again
             DocumentCount = 0;
             DocumentMap.clear();
+            Images.clear();
+            setDone(link);
+        }
+    }
 
-            // increment the loop
-            Loop++;
+    private void setDone(String link) {
+        String query="update crawler_urls set done=1 where url ='"+link+"';";
+        try {
+            db.updatedb(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -134,6 +136,8 @@ public class Indexer {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+
+
         }
 
         boolean Flag = true;
@@ -147,6 +151,8 @@ public class Indexer {
                     FillImages(element,ImageStemmed);
                     System.out.println(element.attr("src"));
                     System.out.println(element.attr("alt"));
+                    System.out.println();
+                    System.out.println();
                 }
                 continue;
             }
@@ -155,7 +161,7 @@ public class Indexer {
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed, GetScore(element.nodeName()));
-                 System.out.println(element.nodeName() + " => " + element.ownText());
+                //System.out.println(element.nodeName() + " => " + element.ownText());
 
                 // Brief
                 if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
@@ -240,9 +246,8 @@ public class Indexer {
         Images.add(image);
     }
 
-    private void PrintMap(HashMap<String, IndexAndFreq> DocumentMap){
+   /* private void PrintMap(HashMap<String, IndexAndFreq> DocumentMap){
         System.out.println("=============== " + Title + " =================");
-
         for (String key : DocumentMap.keySet()){
             System.out.print(key + " => " + DocumentMap.get(key).Freg+" => " + DocumentMap.get(key).Extra +" => ");
             for(int i : DocumentMap.get(key).Index){
@@ -253,12 +258,14 @@ public class Indexer {
         System.out.println("The total words in this document is: "+ DocumentCount);
         System.out.println("The Title of this document is : "+ Title);
     }
+*/
+
 
     private void GetDocumentInformation(String url) throws IOException, SQLException, GeoIp2Exception {
         // Title and Brief
         Title = document.title();
         if(Brief == null)
-             Brief = Title;
+            Brief = Title;
 
 
         // Country
@@ -308,7 +315,7 @@ public class Indexer {
 
     private Boolean IsImage(String s){
         Pattern p = Pattern.compile(".*\\.(png|jpg|jpeg)");
-//        Pattern p = Pattern.compile("(http(s)?:\\/\\/)|(\\/\\/).*\\.(png|jpg|jpeg)");
+//        Pattern p = Pattern.compile("http(s)?:\\/\\/.*\\.(png|jpg|jpeg)");
         Matcher m = p.matcher(s);
         if (m.find())
             return true;
@@ -369,7 +376,7 @@ public class Indexer {
                 keys.add(key);
                 IDs.add(ID);
             }catch(SQLException throwables){
-                throwables.printStackTrace();
+                System.out.println("bad request ya waad");
             }
 
             if(keys.size() == 0)
@@ -391,24 +398,33 @@ public class Indexer {
             // System.out.println(indexQuery);
             db.insertdb(indexQuery);
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            System.out.println("bad request ya waad");
         }
     }
 
     private void FillImageTable(){
+
         if(Images.size() == 0)
             return ;
+
         String Query = "insert into image(image_url ," +
                 "caption," +
                 "stemmed" +
                 ") " +
                 "values";
         for (ImageData i : Images){
+
             String src = i.Src;
             String caption = i.Catption;
             String stemmed = i.Stemmed;
-
+            if(src.startsWith("//"))
+            {
+                src="https:"+src;
+            }
+            if(!(src.startsWith("https")&&src.startsWith("http")))
+                continue;
             caption=caption.replace('\"',' ');
+            caption=caption.replace("'","");
             stemmed=stemmed.replace('\"',' ');
             stemmed=stemmed.replace("'","");
             Query += "('" +
@@ -421,12 +437,15 @@ public class Indexer {
         if (Query.endsWith(","))
             Query = Query.substring(0, Query.length() - 1);
 
+
         System.out.println(Query);
         try{
+
             db.insertdb(Query);
-        }catch(SQLException throwables){
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
     }
 
 

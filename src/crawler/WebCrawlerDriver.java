@@ -52,8 +52,8 @@ public class WebCrawlerDriver {
 	public static void main(String[] args) throws ClassNotFoundException, IOException {
         try {
         	String dbUser = "root";
-        	String dbPassword ="";
-        	String dbName = "mydatabase";
+        	String dbPassword ="password";
+        	String dbName = "search_engine";
         	String dbPort = "3306";
         	String dbHost = "localhost";
             Class.forName("com.mysql.cj.jdbc.Driver");
