@@ -152,11 +152,14 @@ public class Indexer {
             // Image Map
             if(element.nodeName().equals("img") && StringUtils.isNotEmpty(element.attr("src")) && StringUtils.isNotEmpty(element.attr("alt")) && IsImage(element.attr("src"))){
                 String ImageStemmed = S.stem(element.attr("alt"));
-//                System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
+
                     String src = element.attr("src");
                     System.out.println(src);
+
+                    System.out.println(element.attr("src"));
+
                     System.out.println(element.attr("alt"));
                 }
                 continue;
