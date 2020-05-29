@@ -25,7 +25,7 @@ public class DataBase {
 
     static final String documentTableCreate = "CREATE TABLE IF NOT EXISTS "+documentTableName+
             "(id int auto_increment, " +
-            "hyper_link VARCHAR(255) not NULL, " +
+            "hyper_link VARCHAR(255) not NULL unique, " +
             "CountryCode VARCHAR(255), " +
             "data_modified  DATE ,"+
             "stream_words TEXT ,"+
@@ -43,6 +43,17 @@ public class DataBase {
             "primary key (id),"+
             "unique(word_name,document_hyper_link_id));";
 
+    static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
+            "(id int auto_increment, " +
+            "word_name VARCHAR(255) not null, "+
+            "document_id INT NOT NULL,"+
+            "word_position INT NOT NULL,"+
+            "FOREIGN KEY (word_name) REFERENCES word_document(word_name),"+
+            "FOREIGN KEY (document_id) REFERENCES document(id),"+
+            "unique(word_name,document_id,word_position),"+
+            "PRIMARY KEY (id));";
+
+
 
 
     static final String imageTableCreate = "CREATE TABLE IF NOT EXISTS "+imageTableName+
@@ -51,19 +62,6 @@ public class DataBase {
             "caption Text,"+
             "stemmed Text,"+
             "PRIMARY KEY (id));";
-
-
-
-
-    static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
-            "(id int auto_increment, " +
-            "word_document_id int not null, "+
-            "word_position INT NOT NULL,"+
-            "FOREIGN KEY (word_document_id) REFERENCES word_document(id),"+
-            "unique(word_document_id,word_position),"+
-            "PRIMARY KEY (id));";
-
-
 
 
     static final String trendsTableCreate = "CREATE TABLE IF NOT EXISTS  "+trendsTableName+
@@ -146,5 +144,5 @@ public class DataBase {
             throwables.printStackTrace();
         }
     }
-    
+
 }
