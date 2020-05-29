@@ -137,8 +137,6 @@ public class Indexer {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-
-
         }
 
         boolean Flag = true;
