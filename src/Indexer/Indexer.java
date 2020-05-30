@@ -352,54 +352,39 @@ public class Indexer {
     }
 
     public void FillWord_Document(){
-
         if(DocumentMap.size() == 0)
             return;
-        ArrayList<String> keys=new ArrayList<>();
-        ArrayList<Integer> IDs=new ArrayList<>();
-        for (String key : DocumentMap.keySet()){
-            key.replace('\"', ' ');
-            int ID = 0;
-            float tf = (float)(DocumentMap.get(key).Freg+DocumentMap.get(key).Extra)/DocumentCount;
-            String Query = "insert into word_document(word_name ," +
-                    "document_hyper_link_id ," +
-                    "tf ," +
-                    "score" +
-                    ") " +
-                    "values(\"" +
-                    key + "\" ," +
-                    LastLinkId + " ," +
-                    tf+"," +
-                    0 +
-                    ");";
-            try{
-                ID = db.insertdb(Query);
-                keys.add(key);
-                IDs.add(ID);
-            }catch(SQLException throwables){
-                System.out.println("bad request ya waad");
-            }
-
-            if(keys.size() == 0)
-                return ;
-        }
-        String indexQuery= "insert into word_index(word_document_id ," +
+        String wordDocumentQuery = "insert into word_document(word_name ," +
+                "document_hyper_link_id ," +
+                "tf ," +
+                "score" +
+                ") " +
+                "values";
+        String indexQuery= "insert into word_index(word_name ,document_id," +
                 "word_position" +
                 ") " +
                 "values";
-        for(int i=0;i<keys.size();i++) {
-            for (int index : DocumentMap.get(keys.get(i)).Index) {
-                indexQuery += "(" + IDs.get(i) + " ," + index + "),";
+        for (String key : DocumentMap.keySet()){
+            key.replace('\"', ' ');
+            float tf = (float)(DocumentMap.get(key).Freg+DocumentMap.get(key).Extra)/DocumentCount;
+            wordDocumentQuery+= "(\""+key + "\" ," +LastLinkId + " ," + tf+"," + 0 +"),";
+            for (int index : DocumentMap.get(key).Index) {
+                indexQuery+="('" +key+ "' , "+LastLinkId+" , "+ index +"),";
             }
+        }
+        if (wordDocumentQuery.endsWith(",")) {
+            wordDocumentQuery = wordDocumentQuery.substring(0, wordDocumentQuery.length() - 1);
         }
         if (indexQuery.endsWith(",")) {
             indexQuery = indexQuery.substring(0, indexQuery.length() - 1);
         }
+
+
         try {
-            // System.out.println(indexQuery);
+            db.insertdb(wordDocumentQuery);
             db.insertdb(indexQuery);
-        } catch (SQLException throwables) {
-            System.out.println("bad request ya waad");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

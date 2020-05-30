@@ -57,10 +57,12 @@ public class DataBase {
 
     static final String indexTableCreate = "CREATE TABLE IF NOT EXISTS  "+indexTableName+
             "(id int auto_increment, " +
-            "word_document_id int not null, "+
+            "word_name VARCHAR(255) not NULL, " +
+            "document_id INT NOT NULL,"+
             "word_position INT NOT NULL,"+
-            "FOREIGN KEY (word_document_id) REFERENCES word_document(id),"+
-            "unique(word_document_id,word_position),"+
+            "FOREIGN KEY (word_name) REFERENCES word_document(word_name),"+
+            "FOREIGN KEY (document_id) REFERENCES document(id),"+
+            "unique(word_name,document_id,word_position),"+
             "PRIMARY KEY (id));";
 
 
