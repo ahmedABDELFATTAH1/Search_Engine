@@ -10,7 +10,7 @@ CREATE TABLE `crawler_urls` (
 
 CREATE TABLE `forbidden_urls` (
   `url_id` bigint(20) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-  `url` varchar(2048) COLLATE utf16_unicode_ci NOT NULL UNIQUE,
+  `url` varchar(512) COLLATE utf16_unicode_ci NOT NULL UNIQUE,
   `created_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `modified_timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ;

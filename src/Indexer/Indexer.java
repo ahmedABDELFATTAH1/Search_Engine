@@ -92,18 +92,16 @@ public class Indexer {
     private void Start() throws SQLException {
         while (this.links.next()){
             String link=this.links.getString("url");
-            Indexing(link);
+            String OriginalLink = link;
+            if(link.endsWith("/"))
+                link = link.substring(0,link.length()-1);
+            if(Indexing(link))
+                FillDocument();
 
-            FillDocument();
-
-
-            //   PrintMap(DocumentMap);
-
-            // Clear every thing to start again
             DocumentCount = 0;
             DocumentMap.clear();
             Images.clear();
-            setDone(link);
+            setDone(OriginalLink);
         }
     }
 
@@ -117,15 +115,17 @@ public class Indexer {
     }
 
     // take the name of the file and read line by line and steam this line and fill database for this line
-    private void Indexing(String url) {
+    private boolean Indexing(String url) {
         // Connect with url
         try {
             this.document = Jsoup.connect(url).get();
 //            this.document = Jsoup.parseBodyFragment(url);
+
         } catch (IOException e){
             System.out.println("Error in loading the page");
+            System.out.println(url);
+            return false;
         }
-
         // Get Information of document
         try {
             GetDocumentInformation(url);
@@ -148,10 +148,10 @@ public class Indexer {
                 String ImageStemmed = S.stem(element.attr("alt"));
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
-                    System.out.println(element.attr("src"));
-                    System.out.println(element.attr("alt"));
-                    System.out.println();
-                    System.out.println();
+//                    System.out.println(element.attr("src"));
+//                    System.out.println(element.attr("alt"));
+//                    System.out.println();
+//                    System.out.println();
                 }
                 continue;
             }
@@ -160,19 +160,30 @@ public class Indexer {
             String Stemmed = S.stem(element.ownText());
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed, GetScore(element.nodeName()));
-                //System.out.println(element.nodeName() + " => " + element.ownText());
+                    System.out.println(element.nodeName() + " => " + element.ownText());
 
                 // Brief
-                if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
+                if(Flag && ValidBrief(element.nodeName()) && element.ownText().length() > 100){
                     int index = element.ownText().indexOf(" ", 255);
                     if(index > 0)
                         Brief = element.ownText().substring(0,index).trim();
                     else
                         Brief = element.ownText();
                     Flag = !Flag;
+//                    System.out.println("////////////////////////////////////////////////////////////////////////");
+//                    System.out.println(Brief);
                 }
             }
         }
+
+        return true;
+
+    }
+
+    public boolean ValidBrief(String s){
+        if(s == "p" || s == "span" || s=="div" || s == "h1"|| s == "h2"|| s == "h3"|| s == "h4"|| s == "h5"|| s == "h6")
+            return true;
+        return false;
     }
 
     // Take stemmed line and put it in the database
@@ -263,8 +274,7 @@ public class Indexer {
     private void GetDocumentInformation(String url) throws IOException, SQLException, GeoIp2Exception {
         // Title and Brief
         Title = document.title();
-        if(Brief == null)
-            Brief = Title;
+        Brief = Title;
 
 
         // Country
@@ -307,6 +317,7 @@ public class Indexer {
         System.out.println(CountryCode);
         System.out.println(Title);
         System.out.println(url);
+//        System.out.println(Brief);
         System.out.println("===========================================================");
         System.out.println("===========================================================");
 
@@ -389,7 +400,6 @@ public class Indexer {
     }
 
     private void FillImageTable(){
-
         if(Images.size() == 0)
             return ;
 

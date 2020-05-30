@@ -17,13 +17,13 @@ public class InsertInDataBase {
         db.CreateDataBase();
 
         // Delete all rows in crawler and popularity
-//        String Query = "delete from crawler_urls";
-//        db.deletedb(Query);
-//
-//        Query = "delete from hosts_popularity";
-//        db.deletedb(Query);
+        String Query = "delete from crawler_urls";
+        db.deletedb(Query);
 
-        String Query = "delete from word_index";
+        Query = "delete from hosts_popularity";
+        db.deletedb(Query);
+
+        Query = "delete from word_index";
         db.deletedb(Query);
 
         Query = "delete from word_document";
@@ -36,10 +36,12 @@ public class InsertInDataBase {
         db.deletedb(Query);
 
         ArrayList<String> links= new ArrayList<>();
-//        links.add("https://www.tor.com/2016/09/28/the-city-born-great/");
-//        links.add("https://edition.cnn.com/style/");
-//        links.add("https://en.wikipedia.org/wiki/AND_gate");
+        links.add("https://edition.cnn.com/business/success");
+//        links.add("https://www.goodreads.com/genres/childrens?original_shelf=children-s");
 //        links.add("https://en.wikipedia.org/wiki/OR_gate");
+//        links.add("https://edition.cnn.com/2020/05/29/business/renault-job-cuts/index.html");
+
+//
 
 //        links.add("https://elegant-jones-f4e94a.netlify.com/valid_doc.html");
 //        links.add("https://wuzzuf.net/internship/288003-PHP-Developer---Internship-ElMnassa-Innovation-Development-Cairo-Egypt?l=cup&t=bj&a=Internships-in-Egypt&o=2");
@@ -47,9 +49,9 @@ public class InsertInDataBase {
 
 
         HashMap<String,Integer> hosts = new HashMap<String , Integer>();
-//        hosts.put("tor.com",2);
-//        hosts.put("en.wikipedia.org",2);
-//        hosts.put("en.wikipedia.org",2);
+//        hosts.put("edition.cnn.com",1);
+//        hosts.put("academia.stackexchange.com",2);
+//        hosts.put("edition.cnn.com",2);
 
 
         for(String s :links){
@@ -65,6 +67,6 @@ public class InsertInDataBase {
 
     public static void main(String[] args) throws SQLException, IOException {
         InsertInDataBase I = new InsertInDataBase();
-//        Indexer indexer = new Indexer();
+        Indexer indexer = new Indexer();
     }
 }
