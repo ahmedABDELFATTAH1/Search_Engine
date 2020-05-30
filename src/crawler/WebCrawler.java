@@ -166,7 +166,7 @@ class WebCrawler implements Runnable {
 				if(DEBUG)
 					e.printStackTrace();
 			}
-			if(deleteThis)
+			if(deleteThis && checkSum != 0)
 			{
 				String deleteLinkQuery = " DELETE FROM `crawler_urls` WHERE url = '"+ url + "' ; " ;
 				executeNonQuery(deleteLinkQuery);
