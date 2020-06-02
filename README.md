@@ -27,7 +27,7 @@ email to contact with us : ahmed.fattah98@eng-st.cu.edu.eg
 7-run server \
 8-downlaod android project repo \
 9-connect android app to the server \
-
+10-run the application and do what ever you want .
 
 # valid requests 
 http://localhost:8080/search/document \
@@ -40,6 +40,8 @@ http://localhost:8080/search/suggest \
 with 2 arguments : search_query&region \
 
 
+## Required libraries (not provided with the repo duo to their size)
+1-stanford-corenlp-models-current.jar
 
 
 
