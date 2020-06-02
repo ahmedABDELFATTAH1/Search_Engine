@@ -90,19 +90,25 @@ public class Indexer {
         TotalFreq = r.getInt(1);
     }
 
+    public boolean validBrief(String s){
+        if(s == "p" || s == "span" || s=="div" || s == "h1"|| s == "h2"|| s == "h3"|| s == "h4"|| s == "h5"|| s == "h6")
+            return true;
+        return false;
+    }
+
     // iterate the array list of files and pass it to indexer to work on it
     private void Start() throws SQLException {
         while (this.links.next()){
             String link=this.links.getString("url");
-
-            Indexing(link);
-            FillDocument();
+            String OriginalLink = link;
+            if(link.endsWith("/"))
+                link = link.substring(0,link.length()-1);
+            if(Indexing(link))
+                FillDocument();
             DocumentCount = 0;
             DocumentMap.clear();
             Images.clear();
-            setDone(link);
-            // increment the loop
-            Loop++;
+            setDone(OriginalLink);
         }
     }
 
@@ -116,13 +122,14 @@ public class Indexer {
     }
 
     // take the name of the file and read line by line and steam this line and fill database for this line
-    private void Indexing(String url) {
+    private Boolean Indexing(String url) {
         // Connect with url
         try {
             this.document = Jsoup.connect(url).get();
 //            this.document = Jsoup.parseBodyFragment(url);
         } catch (IOException e){
             System.out.println("Error in loading the page");
+            return false;
         }
 
         // Get Information of document
@@ -150,12 +157,12 @@ public class Indexer {
                 if(StringUtils.isNotEmpty(ImageStemmed)){
                     FillImages(element,ImageStemmed);
 
-                    String src = element.attr("src");
-                    System.out.println(src);
+                    //String src = element.attr("src");
+                    //System.out.println(src);
 
-                    System.out.println(element.attr("src"));
+                    //System.out.println(element.attr("src"));
 
-                    System.out.println(element.attr("alt"));
+                    //System.out.println(element.attr("alt"));
                 }
                 continue;
             }
@@ -165,9 +172,8 @@ public class Indexer {
             if(StringUtils.isNotEmpty(Stemmed)){
                 FillDocumentMap(Stemmed, GetScore(element.nodeName()));
                  //System.out.println(element.nodeName() + " => " + element.ownText());
-
                 // Brief
-                if(Flag && element.nodeName() == "p" && element.ownText().length() > 100){
+                if(Flag && validBrief(element.nodeName()) && element.ownText().length() > 100){
                     int index = element.ownText().indexOf(" ", 255);
                     if(index > 0)
                         Brief = element.ownText().substring(0,index).trim();
@@ -177,6 +183,7 @@ public class Indexer {
                 }
             }
         }
+        return true;
     }
 
     // Take stemmed line and put it in the database
@@ -253,10 +260,7 @@ public class Indexer {
     private void GetDocumentInformation(String url) throws IOException, SQLException, GeoIp2Exception {
         // Title and Brief
         Title = document.title();
-        if(Brief == null)
-             Brief = Title;
-
-
+        Brief = Title;
         // Country
         CountryCode = this.urlinformation.Country(url).getIsoCode();
 
@@ -421,7 +425,7 @@ public class Indexer {
 
             db.insertdb(Query);
         } catch (SQLException e) {
-            e.printStackTrace();
+           System.out.println("BAAAAD IMAGE");
         }
 
     }
