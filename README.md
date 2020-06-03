@@ -41,12 +41,12 @@ with 2 arguments : search_query&region \
 
 
 ## Required libraries (not provided with the repo duo to their size)
-1-stanford-corenlp-models-current.jar
-2-selenium-server-standalone-3.141.59.jar
-3-mysql-connector-java-8.0.20.jar
-4-lucene-snowball-3.0.2.jar
-5-jsoup-1.13.1.jar
-6-common-lang3.jar
+1-stanford-corenlp-models-current.jar \
+2-selenium-server-standalone-3.141.59.jar \
+3-mysql-connector-java-8.0.20.jar \
+4-lucene-snowball-3.0.2.jar \
+5-jsoup-1.13.1.jar \
+6-common-lang3.jar \
 
 ## Required FrameWork
 Spring boot FrameWork .
